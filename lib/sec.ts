@@ -3,6 +3,8 @@ export type EnrichedRow = {
   name?: string;
   filer?: string;
   CIK: string; // may have leading zeros
+  latest_closing?: string | null; // "YYYY-MM-DD"
+  latest_form_found?: string | null;
   next_filing_type?: string | null; // "10-Q" or "10-K"
   next_SEC_filing_due?: string | null; // "YYYY-MM-DD"
   next_period_end?: string | null;
@@ -14,6 +16,7 @@ type SecSubmissionsRecent = {
   accessionNumber: string[];
   filingDate: string[];
   primaryDocument: string[];
+  reportDate?: string[];
 };
 
 type SecSubmissions = {
@@ -51,6 +54,7 @@ export type RecentFiling = {
   form: string;
   accession: string;
   filedAt: string;
+  reportDate?: string;
   primaryDoc: string;
   secUrl: string;
 };
@@ -73,13 +77,14 @@ export function pickNewest10Q10K(
     const accession = r.accessionNumber[i];
     const filedAt = r.filingDate[i];
     const primaryDoc = r.primaryDocument[i];
+    const reportDate = r.reportDate?.[i];
 
     // Build standard SEC Archives URL for the primary doc
     const cikNoLeadingZeros = String(Number(sub.cik)); // "0001652044" -> "1652044"
     const accNoDash = accessionNoDashes(accession);
     const secUrl = `https://www.sec.gov/Archives/edgar/data/${cikNoLeadingZeros}/${accNoDash}/${primaryDoc}`;
 
-    return { form, accession, filedAt, primaryDoc, secUrl };
+    return { form, accession, filedAt, reportDate, primaryDoc, secUrl };
   }
   return null;
 }
