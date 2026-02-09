@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const DEFAULT_DATA_DIR = path.join(process.cwd(), "data");
+const DATA_DIR = process.env.DATA_DIR
+  || (process.env.VERCEL ? path.join("/tmp", "8ball-beacon-data") : DEFAULT_DATA_DIR);
 const STATE_PATH = path.join(DATA_DIR, "state.json");
 export const FILINGS_DIR = path.join(DATA_DIR, "filings");
 
@@ -19,6 +21,7 @@ export type FilingEvent = {
 type State = {
   lastSeenByCik: Record<string, string>; // cik -> accession
   events: FilingEvent[];                // newest first
+  logs: Array<{ at: string; message: string }>;
 };
 
 function ensureDirs() {
@@ -29,11 +32,15 @@ function ensureDirs() {
 export function readState(): State {
   ensureDirs();
   if (!fs.existsSync(STATE_PATH)) {
-    const init: State = { lastSeenByCik: {}, events: [] };
+    const init: State = { lastSeenByCik: {}, events: [], logs: [] };
     fs.writeFileSync(STATE_PATH, JSON.stringify(init, null, 2), "utf-8");
     return init;
   }
-  return JSON.parse(fs.readFileSync(STATE_PATH, "utf-8")) as State;
+  const state = JSON.parse(fs.readFileSync(STATE_PATH, "utf-8")) as State;
+  state.logs = state.logs ?? [];
+  state.events = state.events ?? [];
+  state.lastSeenByCik = state.lastSeenByCik ?? {};
+  return state;
 }
 
 export function writeState(state: State) {
@@ -53,4 +60,9 @@ export function saveFilingHtml(ticket: string, accession: string, html: string):
 export function listEvents(limit = 100): FilingEvent[] {
   const s = readState();
   return s.events.slice(0, limit);
+}
+
+export function listLogs(limit = 50): Array<{ at: string; message: string }> {
+  const s = readState();
+  return s.logs.slice(-limit);
 }

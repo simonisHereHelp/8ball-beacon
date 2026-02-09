@@ -1,8 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+SEC Beacon API service hosted at https://8ball-beacon.vercel.app.
 
-## Getting Started
+## Architecture (short)
+- Next.js 14 API route (`/api/scan-rss-feed`) runs the filing check logic.
+- Enriched issuer metadata lives in `data/edgar_by_tickets_enriched.json` and is updated when new filings are detected.
+- In-memory state plus persisted `data/state.json` tracks last-seen filings and recent events.
 
-First, run the development server:
+## API Endpoint
+`GET https://8ball-beacon.vercel.app/api/scan-rss-feed`
+
+The endpoint:
+- Loads `data/edgar_by_tickets_enriched.json`.
+- Scans SEC Atom feeds for the latest 10-Q/10-K filings.
+- For matched CIKs, fetches SEC submissions JSON to confirm the newest filing.
+- Updates enriched data and emits Discord notifications for new filings.
+
+## Export Endpoint (Discord)
+`GET https://8ball-beacon.vercel.app/api/log`
+
+Sends the text content of `state.json` and `edgar_by_tickets_enriched.json` to a secondary Discord webhook. Configure via `DISCORD_WEBHOOK_URL2`.
+
+## CIK JSON Endpoint
+`GET https://8ball-beacon.vercel.app/api/cik-json?cik=0001018724`
+
+Fetches the SEC submissions JSON for a single CIK and posts a brief message to Discord.
+
+## Example Calls
+
+### curl
+```bash
+curl -X GET "https://8ball-beacon.vercel.app/api/scan-rss-feed"
+```
+
+### Discord Bot (Node.js fetch)
+```js
+const res = await fetch("https://8ball-beacon.vercel.app/api/scan-rss-feed");
+const data = await res.json();
+console.log(data);
+```
+
+## Local Development
+
+Run the development server:
 
 ```bash
 npm run dev
@@ -15,22 +53,3 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

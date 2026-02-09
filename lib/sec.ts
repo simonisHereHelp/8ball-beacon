@@ -3,10 +3,10 @@ export type EnrichedRow = {
   name?: string;
   filer?: string;
   CIK: string; // may have leading zeros
-  next_filing_type?: string | null; // "10-Q" or "10-K"
-  next_SEC_filing_due?: string | null; // "YYYY-MM-DD"
-  next_period_end?: string | null;
-  note?: string;
+  "latest filing date"?: string | null; // "YYYY-MM-DD"
+  "latest filing type"?: string | null;
+  "latest filing period"?: string | null; // "YYYY-MM-DD"
+  "latest filing note"?: string | null;
 };
 
 type SecSubmissionsRecent = {
@@ -14,6 +14,8 @@ type SecSubmissionsRecent = {
   accessionNumber: string[];
   filingDate: string[];
   primaryDocument: string[];
+  reportDate?: string[];
+  acceptanceDateTime?: string[];
 };
 
 type SecSubmissions = {
@@ -21,7 +23,7 @@ type SecSubmissions = {
   filings?: { recent?: SecSubmissionsRecent };
 };
 
-function secHeaders() {
+export function secHeaders() {
   const ua = process.env.SEC_USER_AGENT || "SECBeacon/0.1 (example@example.com)";
   return {
     "User-Agent": ua,
@@ -51,6 +53,8 @@ export type RecentFiling = {
   form: string;
   accession: string;
   filedAt: string;
+  reportDate?: string;
+  acceptedAt?: string;
   primaryDoc: string;
   secUrl: string;
 };
@@ -73,13 +77,15 @@ export function pickNewest10Q10K(
     const accession = r.accessionNumber[i];
     const filedAt = r.filingDate[i];
     const primaryDoc = r.primaryDocument[i];
+    const reportDate = r.reportDate?.[i];
+    const acceptedAt = r.acceptanceDateTime?.[i];
 
     // Build standard SEC Archives URL for the primary doc
     const cikNoLeadingZeros = String(Number(sub.cik)); // "0001652044" -> "1652044"
     const accNoDash = accessionNoDashes(accession);
     const secUrl = `https://www.sec.gov/Archives/edgar/data/${cikNoLeadingZeros}/${accNoDash}/${primaryDoc}`;
 
-    return { form, accession, filedAt, primaryDoc, secUrl };
+    return { form, accession, filedAt, reportDate, acceptedAt, primaryDoc, secUrl };
   }
   return null;
 }

@@ -1,24 +1,32 @@
-export default async function Home() {
-  const res = await fetch("http://localhost:3000/api/filings", { cache: "no-store" });
-  const data = await res.json();
+import { listLogs } from "@/lib/storage";
 
+function formatLogLine(at: string, message: string) {
+  const date = new Date(at);
+  const formatted = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  }).format(date);
+  return `${formatted} PST: ${message}`;
+}
+
+export default function Home() {
+  const logs = listLogs(10).map(entry => formatLogLine(entry.at, entry.message));
   return (
     <main style={{ padding: 16, fontFamily: "system-ui" }}>
       <h1>SEC Beacon</h1>
-
-      <form action="/api/poll" method="post" style={{ margin: "12px 0" }}>
-        <button type="submit">Poll now</button>
-      </form>
-
-      <h2>Recent filings</h2>
+      <p>Beacon is on....</p>
+      <h2>Server log</h2>
       <ul>
-        {data.events.map((e: any) => (
-          <li key={`${e.cik}-${e.accession}`} style={{ marginBottom: 10 }}>
-            <b>{e.ticket}</b> {e.form} — {e.filedAt} —{" "}
-            <a href={`/filings/${e.ticket}/${encodeURIComponent(e.accession)}`}>view</a>{" "}
-            | <a href={e.secUrl} target="_blank" rel="noreferrer">SEC</a>
-          </li>
-        ))}
+        {logs.length === 0 ? (
+          <li>No logs yet.</li>
+        ) : (
+          logs.map(line => <li key={line}>{line}</li>)
+        )}
       </ul>
     </main>
   );
