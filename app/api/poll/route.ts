@@ -11,6 +11,11 @@ export async function GET() {
   const rows = readEnriched();
   const state = readState();
   const results: Array<Record<string, string>> = [];
+  const nowIso = new Date().toISOString();
+
+  if (state.logs.length === 0) {
+    state.logs.push({ at: nowIso, message: "beacon on...." });
+  }
 
   for (const row of rows) {
     const cik10 = normalizeCik(row.CIK);
@@ -55,5 +60,7 @@ export async function GET() {
   }
 
   writeEnriched(rows);
+  state.logs.push({ at: new Date().toISOString(), message: `GET response ${results.length} results` });
+  writeState(state);
   return NextResponse.json({ ok: true, results });
 }

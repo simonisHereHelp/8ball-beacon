@@ -2,14 +2,28 @@ import fs from "fs";
 import path from "path";
 import type { EnrichedRow } from "./sec";
 
-const ENRICHED_PATH = path.join(process.cwd(), "data", "edgar_by_tickets_enriched.json");
+const DEFAULT_ENRICHED_PATH = path.join(process.cwd(), "data", "edgar_by_tickets_enriched.json");
+const ENRICHED_PATH = process.env.ENRICHED_PATH
+  || (process.env.VERCEL
+    ? path.join("/tmp", "8ball-beacon-data", "edgar_by_tickets_enriched.json")
+    : DEFAULT_ENRICHED_PATH);
+
+function ensureEnrichedPath() {
+  const dir = path.dirname(ENRICHED_PATH);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(ENRICHED_PATH) && ENRICHED_PATH !== DEFAULT_ENRICHED_PATH) {
+    fs.copyFileSync(DEFAULT_ENRICHED_PATH, ENRICHED_PATH);
+  }
+}
 
 export function readEnriched(): EnrichedRow[] {
+  ensureEnrichedPath();
   const raw = fs.readFileSync(ENRICHED_PATH, "utf-8");
   return JSON.parse(raw) as EnrichedRow[];
 }
 
 export function writeEnriched(rows: EnrichedRow[]) {
+  ensureEnrichedPath();
   fs.writeFileSync(ENRICHED_PATH, JSON.stringify(rows, null, 2), "utf-8");
 }
 
