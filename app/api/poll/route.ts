@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { loadEnriched } from "@/lib/schedule";
+import { loadEnriched, computePollMode } from "@/lib/schedule";
 import {
   normalizeCik,
   fetchSubmissionsByCik,
@@ -9,13 +9,33 @@ import {
 import { readState, writeState, saveFilingHtml } from "@/lib/storage";
 import { sendDiscord } from "@/lib/discord";
 
+let beaconAnnounced = false;
+
+
 export const runtime = "nodejs";
 
 export async function POST() {
+
+    // ✅ one-time startup message
+  if (!beaconAnnounced) {
+    beaconAnnounced = true;
+    await sendDiscord("beacon on...");
+  }
+  
   const includeAmendments = (process.env.INCLUDE_AMENDMENTS || "true") === "true";
 
   const rows = loadEnriched();
   const state = readState();
+
+    // ✅ decide mode once per poll run
+  const mode = computePollMode(rows);
+
+  // ✅ send one status message per poll run
+  if (mode === "wake") {
+    await sendDiscord("wakeup polling...");
+  } else {
+    await sendDiscord("base polling...");
+  }
 
   const results: any[] = [];
 

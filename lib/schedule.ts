@@ -32,3 +32,23 @@ export function computePollIntervalMs(rows: EnrichedRow[]): number {
   const minutes = anyWake ? wakeMin : baseMin;
   return minutes * 60_000;
 }
+
+export type PollMode = "base" | "wake";
+
+export function isWakeWindow(dueISO: string, daysBefore = 1): boolean {
+  const due = new Date(`${dueISO}T00:00:00Z`);
+  const start = new Date(due);
+  start.setUTCDate(start.getUTCDate() - daysBefore);
+
+  const end = new Date(due);
+  end.setUTCDate(end.getUTCDate() + 3);
+
+  const now = new Date();
+  return now >= start && now <= end;
+}
+
+export function computePollMode(rows: Array<{ next_SEC_filing_due?: string | null }>): PollMode {
+  const daysBefore = Number(process.env.WAKE_DAYS_BEFORE_DUE || 1);
+  const anyWake = rows.some(r => r.next_SEC_filing_due && isWakeWindow(r.next_SEC_filing_due, daysBefore));
+  return anyWake ? "wake" : "base";
+}
