@@ -67,8 +67,13 @@ function extractCik(title: string): string | null {
 }
 
 async function fetchRssEntries(formType: "10-Q" | "10-K") {
-  const url = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=${formType}&owner=include&count=600&output=atom`;
-  const res = await fetch(url, { headers: secHeaders() });
+  const url = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=${formType}&company=&dateb=&owner=include&start=0&count=100&output=atom`;
+  const res = await fetch(url, {
+    headers: {
+      ...secHeaders(),
+      "Accept": "application/atom+xml, application/xml, text/xml"
+    }
+  });
   if (!res.ok) {
     throw new Error(`SEC RSS failed for ${formType}: ${res.status}`);
   }
