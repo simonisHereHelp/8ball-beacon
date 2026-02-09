@@ -1,43 +1,35 @@
 import { NextResponse } from "next/server";
-import { loadEnriched, computePollMode } from "@/lib/schedule";
-import {
-  normalizeCik,
-  fetchSubmissionsByCik,
-  pickNewest10Q10K,
-  fetchFilingHtml
-} from "@/lib/sec";
-import { readState, writeState, saveFilingHtml } from "@/lib/storage";
+import { readEnriched, writeEnriched, isNewerDate } from "@/lib/enriched";
+import { normalizeCik, fetchSubmissionsByCik, pickNewest10Q10K } from "@/lib/sec";
+import { readState, writeState } from "@/lib/storage";
 import { sendDiscord } from "@/lib/discord";
-
-let beaconAnnounced = false;
-
 
 export const runtime = "nodejs";
 
-export async function POST() {
+function formatPstTimestamp(date: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  }).format(date);
+}
 
-    // ✅ one-time startup message
-  if (!beaconAnnounced) {
-    beaconAnnounced = true;
-    await sendDiscord("beacon on...");
-  }
-  
+export async function GET() {
   const includeAmendments = (process.env.INCLUDE_AMENDMENTS || "true") === "true";
-
-  const rows = loadEnriched();
+  const rows = readEnriched();
   const state = readState();
+  const results: Array<Record<string, string>> = [];
+  const nowIso = new Date().toISOString();
+  const nowPst = formatPstTimestamp(new Date());
 
-    // ✅ decide mode once per poll run
-  const mode = computePollMode(rows);
-
-  // ✅ send one status message per poll run
-  if (mode === "wake") {
-    await sendDiscord("wakeup polling...");
-  } else {
-    await sendDiscord("base polling...");
+  if (state.logs.length === 0) {
+    state.logs.push({ at: nowIso, message: "beacon on...." });
   }
-
-  const results: any[] = [];
+  state.logs.push({ at: nowIso, message: "GET api/poll...." });
 
   for (const row of rows) {
     const cik10 = normalizeCik(row.CIK);
@@ -50,17 +42,15 @@ export async function POST() {
         continue;
       }
 
-      const lastSeen = state.lastSeenByCik[cik10];
-      if (lastSeen === newest.accession) {
-        results.push({ ticket: row.ticket, cik: cik10, status: "no_change", accession: newest.accession });
+      const reportDate = newest.reportDate || newest.filedAt;
+      if (!reportDate || !isNewerDate(reportDate, row.latest_closing)) {
+        results.push({ ticket: row.ticket, cik: cik10, status: "no_change", reportDate });
         continue;
       }
 
-      // New filing detected
-      const html = await fetchFilingHtml(newest.secUrl);
-      const localPath = saveFilingHtml(row.ticket, newest.accession, html);
+      row.latest_closing = reportDate;
+      row.latest_form_found = newest.form;
 
-      state.lastSeenByCik[cik10] = newest.accession;
       state.events.unshift({
         ticket: row.ticket,
         cik: cik10,
@@ -68,22 +58,23 @@ export async function POST() {
         accession: newest.accession,
         filedAt: newest.filedAt,
         primaryDoc: newest.primaryDoc,
-        secUrl: newest.secUrl,
-        localHtmlPath: localPath
+        secUrl: newest.secUrl
       });
       state.events = state.events.slice(0, 200);
+      state.lastSeenByCik[cik10] = newest.accession;
 
       writeState(state);
-
-      // Discord message (simple & compatible with your curl structure)
-      const msg = `${row.ticket} ${newest.form} 下蛋了 | filed ${newest.filedAt} | ${newest.secUrl}`;
+      const msg = `${row.ticket} new filing: ${reportDate} ${newest.form} (uploaded ${nowPst} PST)`;
       await sendDiscord(msg);
 
-      results.push({ ticket: row.ticket, cik: cik10, status: "NEW", form: newest.form, accession: newest.accession });
+      results.push({ ticket: row.ticket, cik: cik10, status: "NEW", reportDate });
     } catch (e: any) {
       results.push({ ticket: row.ticket, cik: cik10, status: "error", error: String(e?.message || e) });
     }
   }
 
+  writeEnriched(rows);
+  state.logs.push({ at: new Date().toISOString(), message: `GET response ${results.length} results` });
+  writeState(state);
   return NextResponse.json({ ok: true, results });
 }
