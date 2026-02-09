@@ -14,6 +14,11 @@ The endpoint:
 - Compares latest filing dates vs `latest_closing`.
 - Updates enriched data and emits Discord notifications for new filings.
 
+## Export Endpoint (Discord)
+`GET https://8ball-beacon.vercel.app/api/log`
+
+Sends the text content of `state.json` and `edgar_by_tickets_enriched.json` to a secondary Discord webhook. Configure via `DISCORD_WEBHOOK_URL2`.
+
 ## Example Calls
 
 ### curl

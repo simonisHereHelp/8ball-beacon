@@ -6,16 +6,30 @@ import { sendDiscord } from "@/lib/discord";
 
 export const runtime = "nodejs";
 
+function formatPstTimestamp(date: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  }).format(date);
+}
+
 export async function GET() {
   const includeAmendments = (process.env.INCLUDE_AMENDMENTS || "true") === "true";
   const rows = readEnriched();
   const state = readState();
   const results: Array<Record<string, string>> = [];
   const nowIso = new Date().toISOString();
+  const nowPst = formatPstTimestamp(new Date());
 
   if (state.logs.length === 0) {
     state.logs.push({ at: nowIso, message: "beacon on...." });
   }
+  state.logs.push({ at: nowIso, message: "GET api/poll...." });
 
   for (const row of rows) {
     const cik10 = normalizeCik(row.CIK);
@@ -50,7 +64,7 @@ export async function GET() {
       state.lastSeenByCik[cik10] = newest.accession;
 
       writeState(state);
-      const msg = `${row.ticket} new filing: ${reportDate} ${newest.form}`;
+      const msg = `${row.ticket} new filing: ${reportDate} ${newest.form} (uploaded ${nowPst} PST)`;
       await sendDiscord(msg);
 
       results.push({ ticket: row.ticket, cik: cik10, status: "NEW", reportDate });
