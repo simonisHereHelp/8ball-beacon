@@ -66,6 +66,42 @@ BEACON_API_BASE_URL=http://127.0.0.1:3000
 DISCORD_BOT_POLL_MS=4000
 ```
 
+1 . `DISCORD_BOT_TOKEN`
+   - Discord Developer Portal → your application → **Bot**.
+   - Click **Reset Token** (or **Copy** if available) and paste into `.env.local`.
+   - Example:
+     - `DISCORD_BOT_TOKEN=MTIz...`
+
+2. `DISCORD_GUILD_ID`
+   - In Discord app: **User Settings → Advanced → Developer Mode = ON**.
+   - Right-click your SEC Filings server name → **Copy Server ID**.
+   - Example:
+     - `DISCORD_GUILD_ID=123456789012345678`
+
+3. `DISCORD_FILINGS_CHANNEL_ID`
+   - Right-click `#filings` channel → **Copy Channel ID**.
+   - Example:
+     - `DISCORD_FILINGS_CHANNEL_ID=234567890123456789`
+
+4. `DISCORD_FILINGS2_CHANNEL_ID`
+   - Right-click `#filings2` channel → **Copy Channel ID**.
+   - Example:
+     - `DISCORD_FILINGS2_CHANNEL_ID=345678901234567890`
+
+5. `allowedChannelNames`
+   - No env var required in this script; it is hardcoded to:
+     - `["filings", "filings2"]`
+   - If you rename channels, either update the IDs in `.env.local` (recommended) or edit the script names.
+
+6. `BEACON_API_BASE_URL`
+   - Local default: `http://127.0.0.1:3000`.
+   - Keep default for local dev with `npm run dev`.
+   - Set only if your Beacon API runs elsewhere.
+
+7. `DISCORD_BOT_POLL_MS`
+   - Optional interval in milliseconds.
+   - Start with `4000` (4s), then tune to `2000-8000` as desired.
+
 ---
 
 ## 4) Local run commands
