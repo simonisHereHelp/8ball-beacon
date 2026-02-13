@@ -9,6 +9,8 @@ The control flow in this pilot:
 3. You send `scan`, `cik <CIK>`, or `log` in Discord `#filings` or `#filings2`.
 4. The local bot sees the message and calls your local Beacon API (`http://127.0.0.1:3000/api/...`).
 
+curl http://localhost:3000/api/scan-rss-feed
+
 ---
 
 ## 1) Discord server + bot setup
@@ -30,6 +32,7 @@ The control flow in this pilot:
 
 These are used to scope commands so only your SEC server/channels can control local APIs.
 
+![bot permission](./public/discordBot.png)
 ---
 
 ## 2) webhook2 setup for `#filings2`

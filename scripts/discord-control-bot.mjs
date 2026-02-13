@@ -29,7 +29,8 @@ const config = {
   filingsChannelId: process.env.DISCORD_FILINGS_CHANNEL_ID,
   filings2ChannelId: process.env.DISCORD_FILINGS2_CHANNEL_ID,
   apiBaseUrl: process.env.BEACON_API_BASE_URL || "http://127.0.0.1:3000",
-  pollMs: Number(process.env.DISCORD_BOT_POLL_MS || 4000)
+  pollMs: Number(process.env.DISCORD_BOT_POLL_MS || 4000),
+  debugEnabled: (process.env.DISCORD_BOT_DEBUG || "false") === "true"
 };
 
 if (!config.token) throw new Error("Missing DISCORD_BOT_TOKEN in .env.local");
@@ -41,8 +42,48 @@ const authHeaders = {
   "Content-Type": "application/json"
 };
 
+
+async function sendDiscord(content) {
+  const url = process.env.DISCORD_WEBHOOK_URL;
+  if (!url) throw new Error("Missing DISCORD_WEBHOOK_URL");
+
+  const payload = { content };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`Discord webhook failed: ${res.status} ${txt}`);
+  }
+}
+
 const trackedChannelIds = [config.filingsChannelId, config.filings2ChannelId].filter(Boolean);
 const lastSeenMessageId = new Map();
+
+function maskToken(token) {
+  if (!token) return "<missing>";
+  if (token.length <= 12) return `${token.slice(0, 2)}***`;
+  return `${token.slice(0, 6)}...${token.slice(-4)}`;
+}
+
+async function sendDiscordDebug(content) {
+  if (!config.debugEnabled) return;
+  try {
+    await sendDiscord(`[bot-debug] ${String(content).slice(0, 1800)}`);
+  } catch {
+    // best effort debug only
+  }
+}
+
+function debugAuthHeadersSnapshot() {
+  return {
+    ...authHeaders,
+    Authorization: `Bot ${maskToken(config.token)}`
+  };
+}
 
 function helpText() {
   return [
@@ -55,14 +96,30 @@ function helpText() {
 }
 
 async function discordRequest(path, init = {}) {
+  const headers = { ...authHeaders, ...(init.headers || {}) };
+  if (config.debugEnabled) {
+    await sendDiscordDebug(`discordRequest path=${path}`);
+    await sendDiscordDebug(`authHeaders=${JSON.stringify({ ...headers, Authorization: `Bot ${maskToken(config.token)}` })}`);
+    await sendDiscordDebug(`token check -> ${maskToken(config.token)}`);
+  }
+
   const res = await fetch(`${discordApi}${path}`, {
     ...init,
-    headers: { ...authHeaders, ...(init.headers || {}) }
+    headers
   });
+
   const text = await res.text();
-  const body = text ? JSON.parse(text) : null;
+  let body = null;
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    body = text || null;
+  }
+
   if (!res.ok) {
-    throw new Error(`Discord API ${res.status}: ${text.slice(0, 500)}`);
+    const errorText = `Discord API ${res.status}: ${text.slice(0, 500)}`;
+    await sendDiscordDebug(errorText);
+    throw new Error(errorText);
   }
   return body;
 }
@@ -166,6 +223,11 @@ async function pollChannel(channelId) {
 }
 
 async function main() {
+  if (config.debugEnabled) {
+    await sendDiscordDebug(`debug mode ON; token check -> ${maskToken(config.token)}`);
+    await sendDiscordDebug(`authHeaders snapshot -> ${JSON.stringify(debugAuthHeadersSnapshot())}`);
+  }
+
   await loadChannelsIfNeeded();
   if (trackedChannelIds.length === 0) {
     throw new Error("Could not locate #filings or #filings2. Set DISCORD_FILINGS_CHANNEL_ID / DISCORD_FILINGS2_CHANNEL_ID.");
@@ -186,7 +248,9 @@ async function main() {
   }, config.pollMs);
 }
 
-main().catch((error) => {
+main().catch(async (error) => {
+  const errMsg = error instanceof Error ? error.message : String(error);
+  await sendDiscordDebug(`discord-control-bot failed to start: ${errMsg}`);
   console.error("discord-control-bot failed to start:", error);
   process.exit(1);
 });

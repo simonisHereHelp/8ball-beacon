@@ -1,4 +1,96 @@
 {
-  "lastSeenByCik": {},
-  "events": []
+  "lastSeenByCik": {
+    "0001314052": "0001731122-26-000200",
+    "0001417398": "0001628280-26-006490",
+    "0001929561": "0001929561-26-000013",
+    "0000045012": "0000045012-26-000015",
+    "0000875045": "0000875045-26-000013",
+    "0000200406": "0000200406-26-000016"
+  },
+  "events": [
+    {
+      "ticket": "JNJ",
+      "cik": "0000200406",
+      "form": "10-K",
+      "accession": "0000200406-26-000016",
+      "filedAt": "2026-02-11",
+      "primaryDoc": "jnj-20251228.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/200406/000020040626000016/jnj-20251228.htm"
+    },
+    {
+      "ticket": "BIIB",
+      "cik": "0000875045",
+      "form": "10-K",
+      "accession": "0000875045-26-000013",
+      "filedAt": "2026-02-06",
+      "primaryDoc": "biib-20251231.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/875045/000087504526000013/biib-20251231.htm"
+    },
+    {
+      "ticket": "HAL",
+      "cik": "0000045012",
+      "form": "10-K",
+      "accession": "0000045012-26-000015",
+      "filedAt": "2026-02-06",
+      "primaryDoc": "hal-20251231.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/45012/000004501226000015/hal-20251231.htm"
+    },
+    {
+      "ticket": "RXO",
+      "cik": "0001929561",
+      "form": "10-K",
+      "accession": "0001929561-26-000013",
+      "filedAt": "2026-02-09",
+      "primaryDoc": "rxo-20251231.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/1929561/000192956126000013/rxo-20251231.htm"
+    },
+    {
+      "ticket": "HILL",
+      "cik": "0001417398",
+      "form": "10-Q",
+      "accession": "0001628280-26-006490",
+      "filedAt": "2026-02-09",
+      "primaryDoc": "hi-20251231.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/1417398/000162828026006490/hi-20251231.htm"
+    },
+    {
+      "ticket": "ANAVEX",
+      "cik": "0001314052",
+      "form": "10-Q",
+      "accession": "0001731122-26-000200",
+      "filedAt": "2026-02-09",
+      "primaryDoc": "e7289_10-q.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/1314052/000173112226000200/e7289_10-q.htm"
+    }
+  ],
+  "logs": [
+    {
+      "at": "2026-02-11T02:23:04.847Z",
+      "message": "beacon on...."
+    },
+    {
+      "at": "2026-02-11T02:23:04.847Z",
+      "message": "GET api/scan-rss-feed...."
+    },
+    {
+      "at": "2026-02-11T02:23:11.022Z",
+      "message": "GET response 5 results"
+    },
+    {
+      "at": "2026-02-11T02:25:12.309Z",
+      "message": "GET api/scan-rss-feed...."
+    },
+    {
+      "at": "2026-02-11T02:25:17.123Z",
+      "message": "GET response 5 results"
+    },
+    {
+      "at": "2026-02-12T04:31:38.184Z",
+      "message": "GET api/scan-rss-feed...."
+    },
+    {
+      "at": "2026-02-12T04:31:41.948Z",
+      "message": "GET response 1 results"
+    }
+  ]
 }

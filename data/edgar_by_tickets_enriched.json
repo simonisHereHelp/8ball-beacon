@@ -24,7 +24,7 @@
     "name": "Biogen Inc.",
     "filer": "Large Accelerated Filer",
     "CIK": "0000875045",
-    "latest filing date": null,
+    "latest filing date": "2026-02-06",
     "latest filing type": "10-K",
     "latest filing period": "2025-12-31",
     "latest filing note": "computed"
@@ -84,7 +84,7 @@
     "name": "Halliburton Company",
     "filer": "Large Accelerated Filer",
     "CIK": "0000045012",
-    "latest filing date": null,
+    "latest filing date": "2026-02-06",
     "latest filing type": "10-K",
     "latest filing period": "2025-12-31",
     "latest filing note": "computed"
@@ -124,9 +124,9 @@
     "name": "Johnson & Johnson",
     "filer": "Large Accelerated Filer",
     "CIK": "0000200406",
-    "latest filing date": null,
-    "latest filing type": "10-Q",
-    "latest filing period": "2025-09-28",
+    "latest filing date": "2026-02-11",
+    "latest filing type": "10-K",
+    "latest filing period": "2025-12-28",
     "latest filing note": "computed"
   },
   {
@@ -264,9 +264,9 @@
     "name": "ANAVEX LIFE SCIENCES CORP.",
     "filer": "Filer",
     "CIK": "0001314052",
-    "latest filing date": null,
+    "latest filing date": "2026-02-09",
     "latest filing type": "10-Q",
-    "latest filing period": null,
+    "latest filing period": "2025-12-31",
     "latest filing note": "--"
   },
   {
@@ -274,9 +274,9 @@
     "name": "Hillenbrand, Inc.",
     "filer": "Filer",
     "CIK": "0001417398",
-    "latest filing date": null,
+    "latest filing date": "2026-02-09",
     "latest filing type": "10-Q",
-    "latest filing period": null,
+    "latest filing period": "2025-12-31",
     "latest filing note": "--"
   },
   {
@@ -294,9 +294,9 @@
     "name": "RXO, Inc.",
     "filer": "Filer",
     "CIK": "0001929561",
-    "latest filing date": null,
+    "latest filing date": "2026-02-09",
     "latest filing type": "10-K",
-    "latest filing period": null,
+    "latest filing period": "2025-12-31",
     "latest filing note": "--"
   }
 ]
