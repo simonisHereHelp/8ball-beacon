@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "bot:discord": "node scripts/discord-control-bot.mjs",
+    "bot:test": "node scripts/bot2.mjs",
+    "bot:discord:py": "python3 scripts/discord-control-bot.py"
   },
   "dependencies": {
     "next": "16.1.6",
