@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchSubmissionsByCik, normalizeCik } from "@/lib/sec";
-import { sendDiscord } from "@/lib/discord";
+import { sendDiscord } from "@/lib/sendDiscord";
 
 export const runtime = "nodejs";
 
