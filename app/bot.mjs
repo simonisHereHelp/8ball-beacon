@@ -9,7 +9,6 @@ loadEnvFile(".env.local");
 
 const config = getBotConfig();
 
-let pollCount = 0;
 let tickRunning = false;
 let lastErrorMessage = "";
 
@@ -22,12 +21,8 @@ async function tick() {
   tickRunning = true;
 
   try {
-    pollCount += 1;
-    const state = await runPollingCycle();
+    await runPollingCycle();
     lastErrorMessage = "";
-    if (pollCount % 25 === 0) {
-      await sendDiscord(`Bot state: polls=${pollCount}, last scan=${state.scanCount}, last cik-json=${state.cikJsonCount}`);
-    }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     if (msg !== lastErrorMessage) {
@@ -46,8 +41,6 @@ async function main() {
   const trackedChannels = await resolveTrackedChannels(config);
 
   await sendStartMessage(botId);
-  await sendDiscord(`Bot scope: guild=${config.guildId}, channels=${trackedChannels.join(",") || "none"}`);
-
   console.log(`bot polling local API routes every ${config.pollMs}ms`);
   console.log(`bot id: ${botId}`);
   console.log(`tracked channels: ${trackedChannels.join(",") || "none"}`);

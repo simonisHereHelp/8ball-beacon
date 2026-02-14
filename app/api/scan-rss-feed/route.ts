@@ -37,7 +37,6 @@ export async function GET() {
     state.logs.push({ at: nowIso, message: "beacon on...." });
   }
   state.logs.push({ at: nowIso, message: "GET api/scan-rss-feed...." });
-  await sendDiscord("scanning SEC RSS feed...");
 
   const rowByCik = new Map(rows.map((row) => [normalizeCik(row.CIK), row]));
   const rssEntries = [
@@ -45,7 +44,6 @@ export async function GET() {
     ...(await fetchRssEntries("10-K"))
   ];
   const matchedCiks = new Set(rssEntries.map((entry) => normalizeCik(entry.cik)).filter((cik) => rowByCik.has(cik)));
-  await sendDiscord(`scan-rss-feed: ${matchedCiks.size} matched CIKs`);
 
   for (const cik10 of matchedCiks) {
     const row = rowByCik.get(cik10);
@@ -53,7 +51,6 @@ export async function GET() {
 
     try {
       const sub = await fetchSubmissionsByCik(cik10);
-      await sendDiscord(`cik-json: fetched ${cik10}`);
       const newest = pickNewest10Q10K(sub, includeAmendments);
 
       if (!newest) {

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { fetchSubmissionsByCik, normalizeCik } from "@/lib/sec";
-import { sendDiscord } from "@/lib/sendDiscord";
 import { readState, writeState } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -31,7 +30,6 @@ export async function GET(request: Request) {
   }
   const cik10 = normalizeCik(cikParam);
   const data = await fetchSubmissionsByCik(cik10);
-  await sendDiscord(`cik-json: fetched ${cik10}`);
 
   const state = readState();
   const { date, timePst } = getPstDateTime();

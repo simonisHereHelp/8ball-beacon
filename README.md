@@ -34,6 +34,8 @@ DISCORD_BOT_POLL_MS=4000
 
 2. Keep API running in terminal A, then run bot in terminal B.
 
+Bot notifications are intentionally quiet: no per-poll scan/cik status messages are sent to Discord.
+
 ## State tracking
 
 `state.json` now tracks latest bot API summaries in `botStatus`:
