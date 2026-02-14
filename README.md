@@ -32,6 +32,14 @@ Bot file: `app/bot.mjs`.
 
 The bot calls local API routes at `http://127.0.0.1:3000` by default (or `PORT` if set).
 
+Debug logs: set `BOT_DEBUG=true` before running `npm run bot` to print API request/response timing in server logs.
+
+## Standalone bot + internal API calls
+
+This works inside Next app runtime (Server Components / route handlers), but your bot is a standalone Node script (`app/bot.mjs`), so it can’t directly call Next route handlers as functions.
+
+Route handlers are HTTP interfaces; external process = HTTP/fetch (or refactor shared logic to a plain shared module).
+
 ## Key files
 
 - `app/bot.mjs` – bot entrypoint
