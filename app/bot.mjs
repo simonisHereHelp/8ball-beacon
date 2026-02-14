@@ -23,7 +23,7 @@ async function tick() {
 
   try {
     pollCount += 1;
-    const state = await runPollingCycle({ sendDiscord });
+    const state = await runPollingCycle();
     lastErrorMessage = "";
     if (pollCount % 25 === 0) {
       await sendDiscord(`Bot state: polls=${pollCount}, last scan=${state.scanCount}, last cik-json=${state.cikJsonCount}`);

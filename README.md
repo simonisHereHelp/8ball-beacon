@@ -1,56 +1,47 @@
 # 8ball Beacon Bot (local)
 
-Run the bot with:
+## Run sequence (recommended)
+
+Use two terminals:
+
+1. **Terminal A**: start API server
+
+```bash
+npm run dev
+```
+
+2. **Terminal B**: start bot
 
 ```bash
 npm run bot
 ```
 
-Or launch server + bot together:
-
-```bash
-npm run launch
-```
+> `npm run dev` is the recommended local mode.
 
 ## Quick setup
 
-1. Start Next.js API locally (`npm run dev` or `npm run start`).
-2. Add `.env.local`:
+1. Add `.env.local`:
 
 ```bash
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+DISCORD_WEBHOOK_URL2=https://discord.com/api/webhooks/...
 DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
 DISCORD_GUILD_ID=YOUR_GUILD_ID
 DISCORD_FILINGS_CHANNEL_ID=YOUR_FILINGS_CHANNEL_ID
 DISCORD_FILINGS2_CHANNEL_ID=YOUR_FILINGS2_CHANNEL_ID
 DISCORD_BOT_POLL_MS=4000
-DISCORD_BOT_ID=local-bot
 ```
 
-3. Run bot process:
+2. Keep API running in terminal A, then run bot in terminal B.
 
-```bash
-npm run bot
-```
+## State tracking
 
-Or launch server + bot together:
+`state.json` now tracks latest bot API summaries in `botStatus`:
 
-```bash
-npm run launch
-```
+- `latestScanRssFeed`: date, `HH:MM:SS` PST time, summary
+- `latestCikJson`: date, `HH:MM:SS` PST time, summary
 
-Bot file: `app/bot.mjs`.
-
-
-The bot calls local API routes at `http://127.0.0.1:3000` by default (or `PORT` if set).
-
-If you see `ECONNREFUSED`, start Next.js first (`npm run dev` or `npm run start`) and ensure it is listening on port `3000` (or set `PORT`).
-
-## Standalone bot + internal API calls
-
-This works inside Next app runtime (Server Components / route handlers), but your bot is a standalone Node script (`app/bot.mjs`), so it can’t directly call Next route handlers as functions.
-
-Route handlers are HTTP interfaces; external process = HTTP/fetch (or refactor shared logic to a plain shared module).
+`/api/log` sends both `state.json` and `enriched.json` to `DISCORD_WEBHOOK_URL2`.
 
 ## Key files
 

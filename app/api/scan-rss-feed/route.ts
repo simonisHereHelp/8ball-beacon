@@ -7,6 +7,24 @@ import { fetchRssEntries, formatAcceptedPst, formatPstTimestamp } from "@/lib/sc
 
 export const runtime = "nodejs";
 
+function getPstDateTime() {
+  const now = new Date();
+  const date = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(now);
+  const timePst = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  }).format(now);
+  return { date, timePst };
+}
+
 export async function GET() {
   const includeAmendments = (process.env.INCLUDE_AMENDMENTS || "true") === "true";
   const rows = readEnriched();
@@ -86,6 +104,12 @@ export async function GET() {
 
   writeEnriched(rows);
   state.logs.push({ at: new Date().toISOString(), message: `GET response ${results.length} results` });
+  const { date, timePst } = getPstDateTime();
+  state.botStatus.latestScanRssFeed = {
+    date,
+    timePst,
+    summary: `matched=${matchedCiks.size}, results=${results.length}`
+  };
   writeState(state);
 
   return NextResponse.json({ ok: true, results });
