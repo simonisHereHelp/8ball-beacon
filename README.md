@@ -33,8 +33,8 @@ Create `.env.local`:
 
 ```bash
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+# Optional if you want /api/log to send to a separate channel
 DISCORD_WEBHOOK_URL2=https://discord.com/api/webhooks/...
-
 DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
 DISCORD_GUILD_ID=YOUR_GUILD_ID
 DISCORD_FILINGS_CHANNEL_ID=YOUR_FILINGS_CHANNEL_ID
@@ -42,7 +42,6 @@ DISCORD_FILINGS2_CHANNEL_ID=YOUR_FILINGS2_CHANNEL_ID
 # Optional CSV override (defaults to filings,filings2)
 DISCORD_ALLOWED_CHANNEL_NAMES=filings,filings2
 
-BEACON_API_BASE_URL=http://127.0.0.1:3000
 DISCORD_BOT_POLL_MS=4000
 DISCORD_BOT_ID=local-bot
 ```

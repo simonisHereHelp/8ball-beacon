@@ -22,7 +22,7 @@ async function tick() {
 
   try {
     pollCount += 1;
-    const state = await runPollingCycle({ apiBaseUrl: config.apiBaseUrl, sendDiscord });
+    const state = await runPollingCycle({ sendDiscord });
     if (pollCount % 25 === 0) {
       await sendDiscord(`Bot state: polls=${pollCount}, last scan=${state.scanCount}, last cik-json=${state.cikJsonCount}`);
     }
@@ -43,7 +43,7 @@ async function main() {
   await sendStartMessage(botId);
   await sendDiscord(`Bot scope: guild=${config.guildId}, channels=${trackedChannels.join(",") || "none"}`);
 
-  console.log(`bot polling ${config.apiBaseUrl} every ${config.pollMs}ms`);
+  console.log(`bot polling local API routes every ${config.pollMs}ms`);
   console.log(`bot id: ${botId}`);
   console.log(`tracked channels: ${trackedChannels.join(",") || "none"}`);
 
