@@ -11,6 +11,7 @@ const config = getBotConfig();
 
 let pollCount = 0;
 let tickRunning = false;
+let lastErrorMessage = "";
 
 async function sendStartMessage(botId) {
   await sendDiscord(`Polling start: ${botId} ${config.pollMs}ms`);
@@ -23,13 +24,17 @@ async function tick() {
   try {
     pollCount += 1;
     const state = await runPollingCycle({ sendDiscord });
+    lastErrorMessage = "";
     if (pollCount % 25 === 0) {
       await sendDiscord(`Bot state: polls=${pollCount}, last scan=${state.scanCount}, last cik-json=${state.cikJsonCount}`);
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    await sendDiscord(`Polling error: ${msg.slice(0, 1700)}`);
-    console.error("bot poll failed:", error);
+    if (msg !== lastErrorMessage) {
+      await sendDiscord(`Polling error: ${msg.slice(0, 1700)}`);
+      lastErrorMessage = msg;
+    }
+    console.error(`[bot] poll failed: ${msg}`);
   } finally {
     tickRunning = false;
   }

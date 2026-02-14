@@ -6,6 +6,12 @@ Run the bot with:
 npm run bot
 ```
 
+Or launch server + bot together:
+
+```bash
+npm run launch
+```
+
 ## Quick setup
 
 1. Start Next.js API locally (`npm run dev` or `npm run start`).
@@ -27,12 +33,18 @@ DISCORD_BOT_ID=local-bot
 npm run bot
 ```
 
+Or launch server + bot together:
+
+```bash
+npm run launch
+```
+
 Bot file: `app/bot.mjs`.
 
 
 The bot calls local API routes at `http://127.0.0.1:3000` by default (or `PORT` if set).
 
-Debug logs: set `BOT_DEBUG=true` before running `npm run bot` to print API request/response timing in server logs.
+If you see `ECONNREFUSED`, start Next.js first (`npm run dev` or `npm run start`) and ensure it is listening on port `3000` (or set `PORT`).
 
 ## Standalone bot + internal API calls
 
