@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "bot:discord": "node app/bot.mjs"
+    "bot": "node app/bot.mjs"
   },
   "dependencies": {
     "next": "16.1.6",
