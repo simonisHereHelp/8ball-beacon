@@ -13,7 +13,10 @@ function loadEnvFile(path) {
     const key = trimmed.slice(0, eq).trim();
     if (!key || process.env[key] !== undefined) continue;
     let value = trimmed.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
       value = value.slice(1, -1);
     }
     process.env[key] = value;
@@ -38,10 +41,9 @@ if (!config.guildId) throw new Error("Missing DISCORD_GUILD_ID in .env.local");
 
 const discordApi = "https://discord.com/api/v10";
 const authHeaders = {
-  "Authorization": `Bot ${config.token}`,
+  Authorization: `Bot ${config.token}`,
   "Content-Type": "application/json"
 };
-
 
 async function sendDiscord(content) {
   const url = process.env.DISCORD_WEBHOOK_URL;
@@ -62,6 +64,12 @@ async function sendDiscord(content) {
 
 const trackedChannelIds = [config.filingsChannelId, config.filings2ChannelId].filter(Boolean);
 const lastSeenMessageId = new Map();
+
+// ---- state tracking (NEW) ----
+let pollCount = 0;     // counts "poll cycles" (one setInterval tick)
+let botId = "<unknown>";
+let isTickRunning = false;
+// ------------------------------
 
 function maskToken(token) {
   if (!token) return "<missing>";
@@ -99,7 +107,9 @@ async function discordRequest(path, init = {}) {
   const headers = { ...authHeaders, ...(init.headers || {}) };
   if (config.debugEnabled) {
     await sendDiscordDebug(`discordRequest path=${path}`);
-    await sendDiscordDebug(`authHeaders=${JSON.stringify({ ...headers, Authorization: `Bot ${maskToken(config.token)}` })}`);
+    await sendDiscordDebug(
+      `authHeaders=${JSON.stringify({ ...headers, Authorization: `Bot ${maskToken(config.token)}` })}`
+    );
     await sendDiscordDebug(`token check -> ${maskToken(config.token)}`);
   }
 
@@ -124,6 +134,13 @@ async function discordRequest(path, init = {}) {
   return body;
 }
 
+// ---- NEW: get bot id for state message ----
+async function fetchBotId() {
+  const me = await discordRequest("/users/@me");
+  return me?.id || "<unknown>";
+}
+// -------------------------------------------
+
 async function sendChannelMessage(channelId, content) {
   await discordRequest(`/channels/${channelId}/messages`, {
     method: "POST",
@@ -135,9 +152,13 @@ async function hitApi(path) {
   const res = await fetch(`${config.apiBaseUrl}${path}`);
   const text = await res.text();
   let body = text;
-  try { body = JSON.parse(text); } catch {}
+  try {
+    body = JSON.parse(text);
+  } catch {}
   if (!res.ok) {
-    throw new Error(`API ${res.status}: ${(typeof body === "string" ? body : JSON.stringify(body)).slice(0, 700)}`);
+    throw new Error(
+      `API ${res.status}: ${(typeof body === "string" ? body : JSON.stringify(body)).slice(0, 700)}`
+    );
   }
   return body;
 }
@@ -214,7 +235,10 @@ async function pollChannel(channelId) {
   const messages = await discordRequest(`/channels/${channelId}/messages${query}`);
   if (!Array.isArray(messages) || messages.length === 0) return;
 
-  const ordered = messages.slice().sort((a, b) => BigInt(a.id) > BigInt(b.id) ? 1 : -1);
+  const ordered = messages
+    .slice()
+    .sort((a, b) => (BigInt(a.id) > BigInt(b.id) ? 1 : -1));
+
   for (const message of ordered) {
     lastSeenMessageId.set(channelId, message.id);
     if (message.author?.bot) continue;
@@ -230,20 +254,61 @@ async function main() {
 
   await loadChannelsIfNeeded();
   if (trackedChannelIds.length === 0) {
-    throw new Error("Could not locate #filings or #filings2. Set DISCORD_FILINGS_CHANNEL_ID / DISCORD_FILINGS2_CHANNEL_ID.");
+    throw new Error(
+      "Could not locate #filings or #filings2. Set DISCORD_FILINGS_CHANNEL_ID / DISCORD_FILINGS2_CHANNEL_ID."
+    );
   }
 
   await primeWatermarks();
+
+  // ---- NEW: state message on start ----
+  try {
+    botId = await fetchBotId();
+  } catch (e) {
+    // best effort; don't block startup
+    botId = "<unknown>";
+    await sendDiscordDebug(`fetchBotId failed: ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  try {
+    await sendDiscord(`Start polling... botId=${botId} freq=${config.pollMs}ms`);
+  } catch (e) {
+    // best effort; don't block startup
+    await sendDiscordDebug(`startup state send failed: ${e instanceof Error ? e.message : String(e)}`);
+  }
+  // -----------------------------------
+
   console.log(`discord-control-bot polling every ${config.pollMs}ms`);
+  console.log(`botId: ${botId}`);
   console.log(`Guild: ${config.guildId}; Channels: ${trackedChannelIds.join(", ")}`);
 
   setInterval(async () => {
-    for (const channelId of trackedChannelIds) {
-      try {
-        await pollChannel(channelId);
-      } catch (error) {
-        console.error(`poll failed for ${channelId}:`, error);
+    // prevent overlap if a tick runs longer than pollMs
+    if (isTickRunning) return;
+    isTickRunning = true;
+
+    try {
+      pollCount += 1;
+
+      // ---- NEW: every 100 polls send state ----
+      if (pollCount % 100 === 0) {
+        try {
+          await sendDiscord(`${pollCount} poll counts`);
+        } catch {
+          // best effort; do not crash polling
+        }
       }
+      // ----------------------------------------
+
+      for (const channelId of trackedChannelIds) {
+        try {
+          await pollChannel(channelId);
+        } catch (error) {
+          console.error(`poll failed for ${channelId}:`, error);
+        }
+      }
+    } finally {
+      isTickRunning = false;
     }
   }, config.pollMs);
 }
