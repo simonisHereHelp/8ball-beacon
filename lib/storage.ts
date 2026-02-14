@@ -18,10 +18,16 @@ export type FilingEvent = {
   localHtmlPath?: string;
 };
 
+export type BotStatus = {
+  latestScanRssFeed?: { date: string; timePst: string; summary: string };
+  latestCikJson?: { date: string; timePst: string; summary: string };
+};
+
 type State = {
   lastSeenByCik: Record<string, string>; // cik -> accession
   events: FilingEvent[];                // newest first
   logs: Array<{ at: string; message: string }>;
+  botStatus: BotStatus;
 };
 
 function ensureDirs() {
@@ -32,7 +38,7 @@ function ensureDirs() {
 export function readState(): State {
   ensureDirs();
   if (!fs.existsSync(STATE_PATH)) {
-    const init: State = { lastSeenByCik: {}, events: [], logs: [] };
+    const init: State = { lastSeenByCik: {}, events: [], logs: [], botStatus: {} };
     fs.writeFileSync(STATE_PATH, JSON.stringify(init, null, 2), "utf-8");
     return init;
   }
@@ -40,6 +46,7 @@ export function readState(): State {
   state.logs = state.logs ?? [];
   state.events = state.events ?? [];
   state.lastSeenByCik = state.lastSeenByCik ?? {};
+  state.botStatus = state.botStatus ?? {};
   return state;
 }
 
