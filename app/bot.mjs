@@ -2,17 +2,18 @@
 import process from "node:process";
 import { loadEnvFile, getBotConfig } from "../lib/bot/env.mjs";
 import { runPollingCycle } from "../lib/bot/workflow.mjs";
+import { fetchBotIdentity, resolveTrackedChannels } from "../lib/bot/discordApi.mjs";
+import { sendDiscord } from "../lib/sendDiscord.mjs";
 
 loadEnvFile(".env.local");
 
-import { sendDiscord } from "../lib/sendDiscord.mjs";
 const config = getBotConfig();
 
 let pollCount = 0;
 let tickRunning = false;
 
-async function sendStartMessage() {
-  await sendDiscord(`Polling start: ${config.startupBotId} ${config.pollMs}ms`);
+async function sendStartMessage(botId) {
+  await sendDiscord(`Polling start: ${botId} ${config.pollMs}ms`);
 }
 
 async function tick() {
@@ -35,8 +36,17 @@ async function tick() {
 }
 
 async function main() {
-  await sendStartMessage();
+  const identity = await fetchBotIdentity(config.token);
+  const botId = identity.id || config.startupBotId;
+  const trackedChannels = await resolveTrackedChannels(config);
+
+  await sendStartMessage(botId);
+  await sendDiscord(`Bot scope: guild=${config.guildId}, channels=${trackedChannels.join(",") || "none"}`);
+
   console.log(`bot polling ${config.apiBaseUrl} every ${config.pollMs}ms`);
+  console.log(`bot id: ${botId}`);
+  console.log(`tracked channels: ${trackedChannels.join(",") || "none"}`);
+
   await tick();
   setInterval(tick, config.pollMs);
 }
