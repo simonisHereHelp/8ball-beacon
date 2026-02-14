@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { readState, writeState } from "@/lib/storage";
 import { readEnriched } from "@/lib/enriched";
-import { sendDiscordSecondary } from "@/lib/discord";
+import { sendDiscordSecondary } from "@/lib/sendDiscord";
 
 export const runtime = "nodejs";
 
