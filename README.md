@@ -62,3 +62,8 @@ The bot also listens to incoming messages in `#filings` (case-insensitive):
 - `lib/bot/apiClient.mjs` – API route caller
 - `lib/bot/workflow.mjs` – polling workflow orchestration
 - `app/api/*` – SEC scan / cik-json / log / filings routes
+
+
+### Notes (short)
+- Simple `state.json`, complete `enriched.json`.
+- New listing rule: if `RSS.accession` <> `enrichedJson.accession`, treat as a new listing.

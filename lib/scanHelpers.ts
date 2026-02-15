@@ -57,6 +57,18 @@ function extractCik(title: string): string | null {
   return match?.[1] ?? null;
 }
 
+function extractAccession(entry: string, summary?: string | null): string | null {
+  const linkMatch = entry.match(/<link[^>]*href="([^"]+)"[^>]*>/i);
+  const href = linkMatch?.[1] || "";
+  const hrefAccession = href.match(/\/(\d{10}-\d{2}-\d{6})-index\.htm/i)?.[1];
+  if (hrefAccession) return hrefAccession;
+
+  const summaryAccession = (summary || "").match(/AccNo:<\/b>\s*(\d{10}-\d{2}-\d{6})/i)?.[1];
+  if (summaryAccession) return summaryAccession;
+
+  return null;
+}
+
 export async function fetchRssEntries(formType: "10-Q" | "10-K") {
   const url = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=${formType}&company=&dateb=&owner=include&start=0&count=100&output=atom`;
   const res = await fetch(url, {
@@ -69,7 +81,7 @@ export async function fetchRssEntries(formType: "10-Q" | "10-K") {
     throw new Error(`SEC RSS failed for ${formType}: ${res.status}`);
   }
   const xml = await res.text();
-  const entries: Array<{ cik: string; form: string; updated?: string }> = [];
+  const entries: Array<{ cik: string; form: string; updated?: string; accession?: string }> = [];
 
   const entryRegex = /<entry>([\s\S]*?)<\/entry>/gi;
   let match: RegExpExecArray | null;
@@ -80,7 +92,13 @@ export async function fetchRssEntries(formType: "10-Q" | "10-K") {
     const cik = extractCik(title);
     if (!cik) continue;
     const form = extractCategoryTerm(entry) || formType;
-    entries.push({ cik, form, updated: extractTag(entry, "updated") ?? undefined });
+    const summary = extractTag(entry, "summary");
+    entries.push({
+      cik,
+      form,
+      updated: extractTag(entry, "updated") ?? undefined,
+      accession: extractAccession(entry, summary) ?? undefined
+    });
   }
 
   const atomBytes = Buffer.byteLength(xml, "utf8");
