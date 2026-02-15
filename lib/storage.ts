@@ -12,16 +12,26 @@ export type FilingEvent = {
   cik: string;
   form: string;
   accession: string;
-  filedAt: string; // YYYY-MM-DD
+  filedAt: string;
+  period?: string;
   primaryDoc: string;
   secUrl: string;
   localHtmlPath?: string;
 };
 
+export type BotStatus = {
+  latestScanRssFeed?: { date: string; timePst: string; summary: string };
+  latestCikJson?: { date: string; timePst: string; summary: string };
+};
+
+export type StateLog = {
+  latest: string;
+  "SEC Edgar (atom):": string;
+};
+
 type State = {
-  lastSeenByCik: Record<string, string>; // cik -> accession
-  events: FilingEvent[];                // newest first
-  logs: Array<{ at: string; message: string }>;
+  logs: StateLog[];
+  botStatus: BotStatus;
 };
 
 function ensureDirs() {
@@ -32,20 +42,38 @@ function ensureDirs() {
 export function readState(): State {
   ensureDirs();
   if (!fs.existsSync(STATE_PATH)) {
-    const init: State = { lastSeenByCik: {}, events: [], logs: [] };
+    const init: State = { logs: [], botStatus: {} };
     fs.writeFileSync(STATE_PATH, JSON.stringify(init, null, 2), "utf-8");
     return init;
   }
-  const state = JSON.parse(fs.readFileSync(STATE_PATH, "utf-8")) as State;
-  state.logs = state.logs ?? [];
-  state.events = state.events ?? [];
-  state.lastSeenByCik = state.lastSeenByCik ?? {};
-  return state;
+
+  const raw = JSON.parse(fs.readFileSync(STATE_PATH, "utf-8")) as Record<string, unknown>;
+  const logsRaw = Array.isArray(raw.logs) ? raw.logs : [];
+  const logs = logsRaw.map((log) => {
+    const record = (log && typeof log === "object") ? (log as Record<string, unknown>) : {};
+    const latest = typeof record.latest === "string"
+      ? record.latest
+      : (typeof record.at === "string" ? record.at : new Date().toISOString());
+    const atomSize = typeof record["SEC Edgar (atom):"] === "string"
+      ? record["SEC Edgar (atom):"]
+      : (typeof record.message === "string" ? record.message : "0k bytes");
+
+    return {
+      latest,
+      "SEC Edgar (atom):": atomSize
+    };
+  });
+
+  const botStatus = (raw.botStatus && typeof raw.botStatus === "object")
+    ? raw.botStatus as BotStatus
+    : {};
+
+  return { logs, botStatus };
 }
 
 export function writeState(state: State) {
   ensureDirs();
-  fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2), "utf-8");
+  fs.writeFileSync(STATE_PATH, JSON.stringify({ logs: state.logs, botStatus: state.botStatus }, null, 2), "utf-8");
 }
 
 export function saveFilingHtml(ticket: string, accession: string, html: string): string {
@@ -58,11 +86,11 @@ export function saveFilingHtml(ticket: string, accession: string, html: string):
 }
 
 export function listEvents(limit = 100): FilingEvent[] {
-  const s = readState();
-  return s.events.slice(0, limit);
+  void limit;
+  return [];
 }
 
-export function listLogs(limit = 50): Array<{ at: string; message: string }> {
+export function listLogs(limit = 50): StateLog[] {
   const s = readState();
   return s.logs.slice(-limit);
 }

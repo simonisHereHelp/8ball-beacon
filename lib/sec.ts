@@ -3,6 +3,7 @@ export type EnrichedRow = {
   name?: string;
   filer?: string;
   CIK: string; // may have leading zeros
+  accession?: string | null;
   "latest filing date"?: string | null; // "YYYY-MM-DD"
   "latest filing type"?: string | null;
   "latest filing period"?: string | null; // "YYYY-MM-DD"
