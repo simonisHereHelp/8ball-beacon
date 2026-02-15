@@ -2,8 +2,9 @@
 import process from "node:process";
 import { loadEnvFile, getBotConfig } from "../lib/bot/env.mjs";
 import { runPollingCycle } from "../lib/bot/workflow.mjs";
-import { fetchBotIdentity, resolveTrackedChannels } from "../lib/bot/discordApi.mjs";
+import { discordRequest, fetchBotIdentity, resolveTrackedChannels } from "../lib/bot/discordApi.mjs";
 import { sendDiscord } from "../lib/sendDiscord.mjs";
+import { hitApi } from "../lib/bot/apiClient.mjs";
 
 loadEnvFile(".env.local");
 
@@ -11,17 +12,102 @@ const config = getBotConfig();
 
 let tickRunning = false;
 let lastErrorMessage = "";
+let filingsChannelId = config.filingsChannelId || null;
+let lastSeenMessageId = null;
+
+function helpText() {
+  return [
+    "Commands:",
+    "- status | state | log -> runs /api/log",
+    "- help | how to -> this help",
+    "",
+    "Routes:",
+    "- /api/scan-rss-feed",
+    "- /api/log",
+    "",
+    "2-terminal npm:",
+    "npm run dev",
+    "npm run bot",
+    "",
+    "Key files:",
+    "- app/bot.mjs",
+    "- lib/bot/env.mjs",
+    "- lib/bot/discordApi.mjs",
+    "- lib/bot/apiClient.mjs",
+    "- lib/bot/workflow.mjs",
+    "- app/api/*"
+  ].join("\n");
+}
+
+function normalizeMessage(content) {
+  return String(content || "").trim().toLowerCase();
+}
+
+function shouldRunLogRoute(content) {
+  const c = normalizeMessage(content);
+  return c.includes("status") || c.includes("log") || c.includes("state");
+}
+
+function shouldSendHelp(content) {
+  const c = normalizeMessage(content);
+  return c.includes("help") || c.includes("how to");
+}
+
+async function resolveFilingsChannelId() {
+  if (filingsChannelId) return filingsChannelId;
+
+  const channels = await discordRequest(config.token, `/guilds/${config.guildId}/channels`);
+  if (!Array.isArray(channels)) return null;
+
+  const filingsChannel = channels.find((channel) => channel?.name === "filings");
+  filingsChannelId = filingsChannel?.id || null;
+  return filingsChannelId;
+}
+
+async function primeMessageWatermark(channelId) {
+  const messages = await discordRequest(config.token, `/channels/${channelId}/messages?limit=1`);
+  if (Array.isArray(messages) && messages[0]?.id) {
+    lastSeenMessageId = messages[0].id;
+  }
+}
+
+async function pollFilingsChannel(botId) {
+  const channelId = await resolveFilingsChannelId();
+  if (!channelId) return;
+
+  const afterQuery = lastSeenMessageId ? `?after=${lastSeenMessageId}&limit=50` : "?limit=20";
+  const messages = await discordRequest(config.token, `/channels/${channelId}/messages${afterQuery}`);
+  if (!Array.isArray(messages) || messages.length === 0) return;
+
+  const ordered = messages.slice().sort((a, b) => (BigInt(a.id) > BigInt(b.id) ? 1 : -1));
+
+  for (const message of ordered) {
+    lastSeenMessageId = message.id;
+    if (!message?.content) continue;
+    if (message?.author?.id === botId || message?.author?.bot) continue;
+
+    if (shouldRunLogRoute(message.content)) {
+      await hitApi("/api/log");
+      continue;
+    }
+
+    if (shouldSendHelp(message.content)) {
+      await sendDiscord(helpText());
+    }
+  }
+}
 
 async function sendStartMessage(botId) {
   await sendDiscord(`Polling start: ${botId} ${config.pollMs}ms`);
 }
 
-async function tick() {
+async function tick(botId) {
   if (tickRunning) return;
   tickRunning = true;
 
   try {
     await runPollingCycle();
+    await pollFilingsChannel(botId);
     lastErrorMessage = "";
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
@@ -40,13 +126,19 @@ async function main() {
   const botId = identity.id || config.startupBotId;
   const trackedChannels = await resolveTrackedChannels(config);
 
+  await resolveFilingsChannelId();
+  if (filingsChannelId) {
+    await primeMessageWatermark(filingsChannelId);
+  }
+
   await sendStartMessage(botId);
   console.log(`bot polling local API routes every ${config.pollMs}ms`);
   console.log(`bot id: ${botId}`);
   console.log(`tracked channels: ${trackedChannels.join(",") || "none"}`);
+  console.log(`filings channel: ${filingsChannelId || "not-found"}`);
 
-  await tick();
-  setInterval(tick, config.pollMs);
+  await tick(botId);
+  setInterval(() => tick(botId), config.pollMs);
 }
 
 main().catch(async (error) => {

@@ -36,6 +36,14 @@ DISCORD_BOT_POLL_MS=4000
 
 Bot notifications are intentionally quiet: no per-poll scan/cik status messages are sent to Discord.
 
+
+## Channel command listener (`#filings`)
+
+The bot also listens to incoming messages in `#filings` (case-insensitive):
+
+- `status` / `state` / `log` => runs `/api/log`
+- `help` / `how to` => sends help text to Discord
+
 ## State tracking
 
 `state.json` now tracks latest bot API summaries in `botStatus`:
