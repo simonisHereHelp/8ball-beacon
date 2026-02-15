@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { readState, writeState } from "@/lib/storage";
 import { readEnriched } from "@/lib/enriched";
-import { sendDiscordSecondary } from "@/lib/discord";
+import { sendDiscordSecondary } from "@/lib/sendDiscord";
 
 export const runtime = "nodejs";
 
@@ -17,7 +17,7 @@ function chunkContent(text: string, size = DISCORD_LIMIT): string[] {
 
 async function sendJsonPayload(label: string, jsonText: string) {
   const header = `${label}:\n\`\`\`json\n`;
-  const footer = "\n```";
+  const footer = "\n\`\`\`";
   const available = DISCORD_LIMIT - header.length - footer.length;
   const parts = chunkContent(jsonText, available);
   for (const part of parts) {
@@ -27,7 +27,6 @@ async function sendJsonPayload(label: string, jsonText: string) {
 
 export async function GET() {
   const state = readState();
-  state.logs.push({ at: new Date().toISOString(), message: "GET api/log...." });
   writeState(state);
   const enriched = readEnriched();
 
@@ -35,7 +34,7 @@ export async function GET() {
   const enrichedText = JSON.stringify(enriched, null, 2);
 
   await sendJsonPayload("state.json", stateText);
-  await sendJsonPayload("edgar_by_tickets_enriched.json", enrichedText);
+  await sendJsonPayload("enriched.json", enrichedText);
 
   return NextResponse.json({ ok: true });
 }
