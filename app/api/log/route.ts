@@ -27,7 +27,6 @@ async function sendJsonPayload(label: string, jsonText: string) {
 
 export async function GET() {
   const state = readState();
-  state.logs.push({ at: new Date().toISOString(), message: "GET api/log...." });
   writeState(state);
   const enriched = readEnriched();
 

@@ -82,5 +82,7 @@ export async function fetchRssEntries(formType: "10-Q" | "10-K") {
     const form = extractCategoryTerm(entry) || formType;
     entries.push({ cik, form, updated: extractTag(entry, "updated") ?? undefined });
   }
-  return entries;
+
+  const atomBytes = Buffer.byteLength(xml, "utf8");
+  return { entries, atomBytes };
 }

@@ -42,6 +42,7 @@ Bot notifications are intentionally quiet: no per-poll scan/cik status messages 
 
 - `latestScanRssFeed`: date, `HH:MM:SS` PST time, summary
 - `latestCikJson`: date, `HH:MM:SS` PST time, summary
+- `logs[0]`: `{ latest, "SEC Edgar (atom):" }` based on scan-rss-feed response size
 
 `/api/log` sends both `state.json` and `enriched.json` to `DISCORD_WEBHOOK_URL2`.
 

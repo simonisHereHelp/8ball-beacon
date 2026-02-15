@@ -33,16 +33,12 @@ export async function GET() {
   const nowIso = new Date().toISOString();
   const nowPst = formatPstTimestamp(new Date());
 
-  if (state.logs.length === 0) {
-    state.logs.push({ at: nowIso, message: "beacon on...." });
-  }
-  state.logs.push({ at: nowIso, message: "GET api/scan-rss-feed...." });
 
   const rowByCik = new Map(rows.map((row) => [normalizeCik(row.CIK), row]));
-  const rssEntries = [
-    ...(await fetchRssEntries("10-Q")),
-    ...(await fetchRssEntries("10-K"))
-  ];
+  const qFeed = await fetchRssEntries("10-Q");
+  const kFeed = await fetchRssEntries("10-K");
+  const rssEntries = [...qFeed.entries, ...kFeed.entries];
+  const atomBytes = qFeed.atomBytes + kFeed.atomBytes;
   const matchedCiks = new Set(rssEntries.map((entry) => normalizeCik(entry.cik)).filter((cik) => rowByCik.has(cik)));
 
   for (const cik10 of matchedCiks) {
@@ -100,7 +96,10 @@ export async function GET() {
   }
 
   writeEnriched(rows);
-  state.logs.push({ at: new Date().toISOString(), message: `GET response ${results.length} results` });
+  state.logs = [{
+    latest: nowIso,
+    "SEC Edgar (atom):": `${Math.max(1, Math.round(atomBytes / 1024))}k bytes`
+  }];
   const { date, timePst } = getPstDateTime();
   state.botStatus.latestScanRssFeed = {
     date,

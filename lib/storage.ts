@@ -23,10 +23,15 @@ export type BotStatus = {
   latestCikJson?: { date: string; timePst: string; summary: string };
 };
 
+export type StateLog = {
+  latest: string;
+  "SEC Edgar (atom):": string;
+};
+
 type State = {
   lastSeenByCik: Record<string, string>; // cik -> accession
   events: FilingEvent[];                // newest first
-  logs: Array<{ at: string; message: string }>;
+  logs: StateLog[];
   botStatus: BotStatus;
 };
 
@@ -43,7 +48,20 @@ export function readState(): State {
     return init;
   }
   const state = JSON.parse(fs.readFileSync(STATE_PATH, "utf-8")) as State;
-  state.logs = state.logs ?? [];
+  state.logs = (state.logs ?? []).map((log: unknown) => {
+    const record = (log && typeof log === "object") ? (log as Record<string, unknown>) : {};
+    const latest = typeof record.latest === "string"
+      ? record.latest
+      : (typeof record.at === "string" ? record.at : new Date().toISOString());
+    const atomSize = typeof record["SEC Edgar (atom):"] === "string"
+      ? record["SEC Edgar (atom):"]
+      : (typeof record.message === "string" ? record.message : "0k bytes");
+
+    return {
+      latest,
+      "SEC Edgar (atom):": atomSize
+    };
+  });
   state.events = state.events ?? [];
   state.lastSeenByCik = state.lastSeenByCik ?? {};
   state.botStatus = state.botStatus ?? {};
@@ -69,7 +87,7 @@ export function listEvents(limit = 100): FilingEvent[] {
   return s.events.slice(0, limit);
 }
 
-export function listLogs(limit = 50): Array<{ at: string; message: string }> {
+export function listLogs(limit = 50): StateLog[] {
   const s = readState();
   return s.logs.slice(-limit);
 }
