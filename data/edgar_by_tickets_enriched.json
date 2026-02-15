@@ -298,5 +298,45 @@
     "latest filing type": "10-K",
     "latest filing period": "2025-12-31",
     "latest filing note": "--"
+  },
+  {
+    "ticket": "UNTC",
+    "name": "UNITIL CORP.",
+    "filer": "Filer",
+    "CIK": "0000075500",
+    "latest filing date": null,
+    "latest filing type": "10-K",
+    "latest filing period": null,
+    "latest filing note": "--"
+  },
+  {
+    "ticket": "test 1",
+    "name": "TEST 1",
+    "filer": "Filer",
+    "CIK": "0001471727",
+    "latest filing date": "2026-02-13",
+    "latest filing type": "10-Q",
+    "latest filing period": "2025-12-31",
+    "latest filing note": "--"
+  },
+  {
+    "ticket": "test 2",
+    "name": "TEST 2",
+    "filer": "Filer",
+    "CIK": "0000924396",
+    "latest filing date": "2026-02-13",
+    "latest filing type": "10-Q",
+    "latest filing period": "2025-10-31",
+    "latest filing note": "--"
+  },
+  {
+    "ticket": "test 3",
+    "name": "TEST 3",
+    "filer": "Filer",
+    "CIK": "0002033264",
+    "latest filing date": "2026-02-13",
+    "latest filing type": "10-Q",
+    "latest filing period": "2025-12-31",
+    "latest filing note": "--"
   }
 ]

@@ -5,9 +5,39 @@
     "0001929561": "0001929561-26-000013",
     "0000045012": "0000045012-26-000015",
     "0000875045": "0000875045-26-000013",
-    "0000200406": "0000200406-26-000016"
+    "0000200406": "0000200406-26-000016",
+    "0001471727": "0001493152-26-006816",
+    "0000924396": "0001493152-26-006809",
+    "0002033264": "0001493152-26-006782"
   },
   "events": [
+    {
+      "ticket": "test 3",
+      "cik": "0002033264",
+      "form": "10-Q",
+      "accession": "0001493152-26-006782",
+      "filedAt": "2026-02-13",
+      "primaryDoc": "form10-q.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/2033264/000149315226006782/form10-q.htm"
+    },
+    {
+      "ticket": "test 2",
+      "cik": "0000924396",
+      "form": "10-Q",
+      "accession": "0001493152-26-006809",
+      "filedAt": "2026-02-13",
+      "primaryDoc": "form10-q.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/924396/000149315226006809/form10-q.htm"
+    },
+    {
+      "ticket": "test 1",
+      "cik": "0001471727",
+      "form": "10-Q",
+      "accession": "0001493152-26-006816",
+      "filedAt": "2026-02-13",
+      "primaryDoc": "form10-q.htm",
+      "secUrl": "https://www.sec.gov/Archives/edgar/data/1471727/000149315226006816/form10-q.htm"
+    },
     {
       "ticket": "JNJ",
       "cik": "0000200406",
@@ -65,32 +95,20 @@
   ],
   "logs": [
     {
-      "at": "2026-02-11T02:23:04.847Z",
-      "message": "beacon on...."
-    },
-    {
-      "at": "2026-02-11T02:23:04.847Z",
-      "message": "GET api/scan-rss-feed...."
-    },
-    {
-      "at": "2026-02-11T02:23:11.022Z",
-      "message": "GET response 5 results"
-    },
-    {
-      "at": "2026-02-11T02:25:12.309Z",
-      "message": "GET api/scan-rss-feed...."
-    },
-    {
-      "at": "2026-02-11T02:25:17.123Z",
-      "message": "GET response 5 results"
-    },
-    {
-      "at": "2026-02-12T04:31:38.184Z",
-      "message": "GET api/scan-rss-feed...."
-    },
-    {
-      "at": "2026-02-12T04:31:41.948Z",
-      "message": "GET response 1 results"
+      "latest": "2026-02-15T03:40:32.778Z",
+      "SEC Edgar (atom):": "111k bytes"
     }
-  ]
+  ],
+  "botStatus": {
+    "latestScanRssFeed": {
+      "date": "2026-02-14",
+      "timePst": "19:40:34",
+      "summary": "matched=3, results=3"
+    },
+    "latestCikJson": {
+      "date": "2026-02-14",
+      "timePst": "19:40:30",
+      "summary": "cik=0002033264, ok=true"
+    }
+  }
 }
