@@ -1,113 +1,19 @@
 {
-  "lastSeenByCik": {
-    "0001314052": "0001731122-26-000200",
-    "0001417398": "0001628280-26-006490",
-    "0001929561": "0001929561-26-000013",
-    "0000045012": "0000045012-26-000015",
-    "0000875045": "0000875045-26-000013",
-    "0000200406": "0000200406-26-000016",
-    "0001471727": "0001493152-26-006816",
-    "0000924396": "0001493152-26-006809",
-    "0002033264": "0001493152-26-006782"
-  },
-  "events": [
-    {
-      "ticket": "test 3",
-      "cik": "0002033264",
-      "form": "10-Q",
-      "accession": "0001493152-26-006782",
-      "filedAt": "2026-02-13",
-      "primaryDoc": "form10-q.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/2033264/000149315226006782/form10-q.htm"
-    },
-    {
-      "ticket": "test 2",
-      "cik": "0000924396",
-      "form": "10-Q",
-      "accession": "0001493152-26-006809",
-      "filedAt": "2026-02-13",
-      "primaryDoc": "form10-q.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/924396/000149315226006809/form10-q.htm"
-    },
-    {
-      "ticket": "test 1",
-      "cik": "0001471727",
-      "form": "10-Q",
-      "accession": "0001493152-26-006816",
-      "filedAt": "2026-02-13",
-      "primaryDoc": "form10-q.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/1471727/000149315226006816/form10-q.htm"
-    },
-    {
-      "ticket": "JNJ",
-      "cik": "0000200406",
-      "form": "10-K",
-      "accession": "0000200406-26-000016",
-      "filedAt": "2026-02-11",
-      "primaryDoc": "jnj-20251228.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/200406/000020040626000016/jnj-20251228.htm"
-    },
-    {
-      "ticket": "BIIB",
-      "cik": "0000875045",
-      "form": "10-K",
-      "accession": "0000875045-26-000013",
-      "filedAt": "2026-02-06",
-      "primaryDoc": "biib-20251231.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/875045/000087504526000013/biib-20251231.htm"
-    },
-    {
-      "ticket": "HAL",
-      "cik": "0000045012",
-      "form": "10-K",
-      "accession": "0000045012-26-000015",
-      "filedAt": "2026-02-06",
-      "primaryDoc": "hal-20251231.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/45012/000004501226000015/hal-20251231.htm"
-    },
-    {
-      "ticket": "RXO",
-      "cik": "0001929561",
-      "form": "10-K",
-      "accession": "0001929561-26-000013",
-      "filedAt": "2026-02-09",
-      "primaryDoc": "rxo-20251231.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/1929561/000192956126000013/rxo-20251231.htm"
-    },
-    {
-      "ticket": "HILL",
-      "cik": "0001417398",
-      "form": "10-Q",
-      "accession": "0001628280-26-006490",
-      "filedAt": "2026-02-09",
-      "primaryDoc": "hi-20251231.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/1417398/000162828026006490/hi-20251231.htm"
-    },
-    {
-      "ticket": "ANAVEX",
-      "cik": "0001314052",
-      "form": "10-Q",
-      "accession": "0001731122-26-000200",
-      "filedAt": "2026-02-09",
-      "primaryDoc": "e7289_10-q.htm",
-      "secUrl": "https://www.sec.gov/Archives/edgar/data/1314052/000173112226000200/e7289_10-q.htm"
-    }
-  ],
   "logs": [
     {
-      "latest": "2026-02-15T03:40:32.778Z",
+      "latest": "2026-02-14 PST 20:52:30",
       "SEC Edgar (atom):": "111k bytes"
     }
   ],
   "botStatus": {
     "latestScanRssFeed": {
       "date": "2026-02-14",
-      "timePst": "19:40:34",
-      "summary": "matched=3, results=3"
+      "timePst": "20:52:30",
+      "summary": "matched=3, newListing=0, results=3"
     },
     "latestCikJson": {
       "date": "2026-02-14",
-      "timePst": "19:40:30",
+      "timePst": "20:52:31",
       "summary": "cik=0002033264, ok=true"
     }
   }

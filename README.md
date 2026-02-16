@@ -63,7 +63,8 @@ The bot also listens to incoming messages in `#filings` (case-insensitive):
 - `lib/bot/workflow.mjs` – polling workflow orchestration
 - `app/api/*` – SEC scan / cik-json / log / filings routes
 
-
+## Example SEC RSS Atom
+https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=10-Q&company=&dateb=&owner=include&start=0&count=100&output=atom
 ### Notes (short)
 - Simple `state.json`, complete `enriched.json`.
 - New listing rule: if `RSS.accession` <> `enrichedJson.accession`, treat as a new listing.
