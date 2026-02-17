@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { readEnriched } from "@/lib/enriched";
 
 let cachedTickets: string[] | null = null;
@@ -14,33 +16,26 @@ export function getTrackedTickets(): string[] {
   return cachedTickets;
 }
 
-export const US_ACTIVE_RSS = [
-  "https://feeds.bloomberg.com/markets/news.rss",
-  "https://feeds.bloomberg.com/economics/news.rss",
-  "https://feeds.bloomberg.com/business/news.rss",
-  "https://www.cnbc.com/id/100003114/device/rss/rss.html",
-  "https://feeds.marketwatch.com/marketwatch/topstories/",
-  "https://feeds.content.dowjones.io/public/rss/mw_marketpulse",
-  "https://finance.yahoo.com/news/rssindex",
-  "https://finance.yahoo.com/rss/",
-  "https://seekingalpha.com/market_currents.xml",
-  "https://news.alphastreet.com/feed/",
-  "https://insight.factset.com/rss.xml",
-  "https://www.nasdaq.com/feed/nasdaq-original/rss.xml",
-  "https://www.nasdaq.com/feed/rssoutbound?category=Earnings",
-  "https://www.nasdaq.com/feed/rssoutbound?category=Markets",
-  "https://www.nasdaq.com/feed/rssoutbound?category=Stocks",
-  "https://www.nasdaq.com/feed/rssoutbound?category=Technology",
-  "https://www.nasdaq.com/feed/rssoutbound?category=Financial+Advisors",
-  "https://www.nasdaq.com/feed/rssoutbound?category=Nasdaq",
-  "https://www.nasdaq.com/feed/rssoutbound?category=Innovation",
-  "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
-  "https://www.investing.com/rss/news_14.rss",
-  "https://www.investing.com/rss/news_25.rss",
-  "https://libertystreeteconomics.newyorkfed.org/feed/",
-  "https://rss.app/feeds/WpnRvu5SRsRAhZpQ.xml",
-  "https://www.reutersagency.com/feed/?best-sectors=economy&post_type=best"
-];
+const NEWS_FEEDS_PATH = path.join(process.cwd(), "data", "news_feeds.json");
+
+let cachedNewsFeeds: string[] | null = null;
+
+export function getNewsFeedUrls(): string[] {
+  if (cachedNewsFeeds) return cachedNewsFeeds;
+
+  if (!fs.existsSync(NEWS_FEEDS_PATH)) {
+    cachedNewsFeeds = [];
+    return cachedNewsFeeds;
+  }
+
+  const raw = JSON.parse(fs.readFileSync(NEWS_FEEDS_PATH, "utf-8")) as unknown;
+  const urls = Array.isArray(raw)
+    ? raw.filter((v): v is string => typeof v === "string").map((v) => v.trim()).filter(Boolean)
+    : [];
+
+  cachedNewsFeeds = [...new Set(urls)];
+  return cachedNewsFeeds;
+}
 
 export type FeedItem = {
   title: string;
@@ -153,7 +148,7 @@ export async function fetchAllNewsFeedItems() {
   const allItems: FeedItem[] = [];
   const fetchStats: Array<{ source: string; ok: boolean; status?: number; count: number; error?: string }> = [];
 
-  for (const source of US_ACTIVE_RSS) {
+  for (const source of getNewsFeedUrls()) {
     try {
       const res = await fetch(source, { headers, cache: "no-store" });
       if (!res.ok) {
