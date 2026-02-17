@@ -23,6 +23,7 @@ function helpText() {
     "",
     "Routes:",
     "- /api/scan-rss-feed",
+    "- /api/scan-news-feed",
     "- /api/log",
     "",
     "2-terminal npm:",

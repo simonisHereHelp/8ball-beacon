@@ -21,3 +21,8 @@ export async function sendDiscordSecondary(content: string) {
   const url = process.env.DISCORD_WEBHOOK_URL2 || process.env.DISCORD_WEBHOOK_URL;
   await postWebhook(url, content, "DISCORD_WEBHOOK_URL (or DISCORD_WEBHOOK_URL2)");
 }
+
+export async function sendDiscordNews(content: string) {
+  const url = process.env.DISCORD_WEBHOOK_URL_NEWS || process.env.DISCORD_WEBHOOK_URL2 || process.env.DISCORD_WEBHOOK_URL;
+  await postWebhook(url, content, "DISCORD_WEBHOOK_URL_NEWS (or DISCORD_WEBHOOK_URL2 / DISCORD_WEBHOOK_URL)");
+}
