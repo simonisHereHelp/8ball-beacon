@@ -21,7 +21,22 @@ export type FilingEvent = {
 
 export type BotStatus = {
   latestScanRssFeed?: { date: string; timePst: string; summary: string };
+  latestScanNewsFeed?: { date: string; timePst: string; summary: string };
   latestCikJson?: { date: string; timePst: string; summary: string };
+};
+
+export type NewsFeedsLog = {
+  date: string;
+  timePst: string;
+  summary: string;
+  feedUpdateTime: string;
+};
+
+export type NewsState = {
+  seenNewsKeys: string[];
+  feedUpdateTime?: string;
+  latestNewsFeedsLog?: NewsFeedsLog;
+  latestScanNewsFeed?: { date: string; timePst: string; summary: string };
 };
 
 export type StateLog = {
@@ -32,6 +47,7 @@ export type StateLog = {
 type State = {
   logs: StateLog[];
   botStatus: BotStatus;
+  news?: NewsState;
 };
 
 function ensureDirs() {
@@ -68,12 +84,44 @@ export function readState(): State {
     ? raw.botStatus as BotStatus
     : {};
 
-  return { logs, botStatus };
+  const newsRaw = (raw.news && typeof raw.news === "object") ? raw.news as Record<string, unknown> : null;
+  const seenNewsKeys = Array.isArray(newsRaw?.seenNewsKeys)
+    ? newsRaw!.seenNewsKeys.filter((key): key is string => typeof key === "string")
+    : [];
+  const feedUpdateTime = typeof newsRaw?.feedUpdateTime === "string" ? newsRaw.feedUpdateTime : undefined;
+
+  const latestNewsFeedsLogRaw = (newsRaw?.latestNewsFeedsLog && typeof newsRaw.latestNewsFeedsLog === "object")
+    ? newsRaw.latestNewsFeedsLog as Record<string, unknown>
+    : null;
+  const latestNewsFeedsLog = latestNewsFeedsLogRaw
+    ? {
+      date: typeof latestNewsFeedsLogRaw.date === "string" ? latestNewsFeedsLogRaw.date : "",
+      timePst: typeof latestNewsFeedsLogRaw.timePst === "string" ? latestNewsFeedsLogRaw.timePst : "",
+      summary: typeof latestNewsFeedsLogRaw.summary === "string" ? latestNewsFeedsLogRaw.summary : "",
+      feedUpdateTime: typeof latestNewsFeedsLogRaw.feedUpdateTime === "string"
+        ? latestNewsFeedsLogRaw.feedUpdateTime
+        : (feedUpdateTime || "")
+    }
+    : undefined;
+
+  const latestScanNewsFeed = (newsRaw?.latestScanNewsFeed && typeof newsRaw.latestScanNewsFeed === "object")
+    ? newsRaw.latestScanNewsFeed as NewsState["latestScanNewsFeed"]
+    : undefined;
+
+  const news = (seenNewsKeys.length > 0 || latestScanNewsFeed || latestNewsFeedsLog || feedUpdateTime)
+    ? { seenNewsKeys, feedUpdateTime, latestNewsFeedsLog, latestScanNewsFeed }
+    : undefined;
+
+  return { logs, botStatus, news };
 }
 
 export function writeState(state: State) {
   ensureDirs();
-  fs.writeFileSync(STATE_PATH, JSON.stringify({ logs: state.logs, botStatus: state.botStatus }, null, 2), "utf-8");
+  fs.writeFileSync(
+    STATE_PATH,
+    JSON.stringify({ logs: state.logs, botStatus: state.botStatus, news: state.news }, null, 2),
+    "utf-8"
+  );
 }
 
 export function saveFilingHtml(ticket: string, accession: string, html: string): string {

@@ -25,16 +25,20 @@ npm run bot
 ```bash
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 DISCORD_WEBHOOK_URL2=https://discord.com/api/webhooks/...
+DISCORD_WEBHOOK_URL_NEWS=https://discord.com/api/webhooks/...
 DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
 DISCORD_GUILD_ID=YOUR_GUILD_ID
 DISCORD_FILINGS_CHANNEL_ID=YOUR_FILINGS_CHANNEL_ID
 DISCORD_FILINGS2_CHANNEL_ID=YOUR_FILINGS2_CHANNEL_ID
+DISCORD_NEWS_CHANNEL_ID=YOUR_NEWS_CHANNEL_ID
 DISCORD_BOT_POLL_MS=4000
 ```
 
 2. Keep API running in terminal A, then run bot in terminal B.
 
 Bot notifications are intentionally quiet: no per-poll scan/cik status messages are sent to Discord.
+
+News Poll = 4 x BOT_POLL_MS
 
 
 ## Channel command listener (`#filings`)
