@@ -18,12 +18,14 @@ let lastSeenMessageId = null;
 function helpText() {
   return [
     "Commands:",
+    "- earning | earning call | calendar | earning event -> runs /api/next-earning-call",
     "- status | state | log -> runs /api/log",
     "- help | how to -> this help",
     "",
     "Routes:",
     "- /api/scan-rss-feed",
     "- /api/scan-news-feed",
+    "- /api/next-earning-call",
     "- /api/log",
     "",
     "2-terminal npm:",
@@ -47,6 +49,11 @@ function normalizeMessage(content) {
 function shouldRunLogRoute(content) {
   const c = normalizeMessage(content);
   return c.includes("status") || c.includes("log") || c.includes("state");
+}
+
+function shouldRunNextEarningCall(content) {
+  const c = normalizeMessage(content);
+  return c.includes("earning call") || c.includes("earning event") || c.includes("earning calendar");
 }
 
 function shouldSendHelp(content) {
@@ -89,6 +96,11 @@ async function pollFilingsChannel(botId) {
 
     if (shouldRunLogRoute(message.content)) {
       await hitApi("/api/log");
+      continue;
+    }
+
+    if (shouldRunNextEarningCall(message.content)) {
+      await hitApi("/api/next-earning-call");
       continue;
     }
 
