@@ -125,10 +125,10 @@
     "name": "Honeywell International Inc.",
     "filer": "Large Accelerated Filer",
     "CIK": "0000773840",
-    "accession": "XXXXX",
-    "latest filing date": null,
-    "latest filing type": "10-Q",
-    "latest filing period": "2025-09-30",
+    "accession": "0000773840-26-000013",
+    "latest filing date": "2026-02-17",
+    "latest filing type": "10-K",
+    "latest filing period": "2025-12-31",
     "latest filing note": "computed"
   },
   {
@@ -345,9 +345,9 @@
     "name": "TEST 2",
     "filer": "Filer",
     "CIK": "0000924396",
-    "accession": "0001493152-26-006809",
-    "latest filing date": "2026-02-13",
-    "latest filing type": "10-Q",
+    "accession": "0001493152-26-006877",
+    "latest filing date": "2026-02-17",
+    "latest filing type": "10-Q/A",
     "latest filing period": "2025-10-31",
     "latest filing note": "--"
   },
