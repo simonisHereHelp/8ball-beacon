@@ -18,12 +18,15 @@ let lastSeenMessageId = null;
 function helpText() {
   return [
     "Commands:",
+    "- filing | filings -> runs /api/scan-rss-feed",
+    "- earning | earning call | calendar | earning event -> runs /api/next-earning-call",
     "- status | state | log -> runs /api/log",
     "- help | how to -> this help",
     "",
     "Routes:",
     "- /api/scan-rss-feed",
     "- /api/scan-news-feed",
+    "- /api/next-earning-call",
     "- /api/log",
     "",
     "2-terminal npm:",
@@ -44,9 +47,19 @@ function normalizeMessage(content) {
   return String(content || "").trim().toLowerCase();
 }
 
+function shouldRunScanRssRoute(content) {
+  const c = normalizeMessage(content);
+  return c.includes("filing") || c.includes("filings");
+}
+
 function shouldRunLogRoute(content) {
   const c = normalizeMessage(content);
   return c.includes("status") || c.includes("log") || c.includes("state");
+}
+
+function shouldRunNextEarningCall(content) {
+  const c = normalizeMessage(content);
+  return c.includes("earning call") || c.includes("earning event") || c.includes("earning calendar");
 }
 
 function shouldSendHelp(content) {
@@ -87,8 +100,18 @@ async function pollFilingsChannel(botId) {
     if (!message?.content) continue;
     if (message?.author?.id === botId || message?.author?.bot) continue;
 
+    if (shouldRunScanRssRoute(message.content)) {
+      await hitApi("/api/scan-rss-feed");
+      continue;
+    }
+
     if (shouldRunLogRoute(message.content)) {
       await hitApi("/api/log");
+      continue;
+    }
+
+    if (shouldRunNextEarningCall(message.content)) {
+      await hitApi("/api/next-earning-call");
       continue;
     }
 

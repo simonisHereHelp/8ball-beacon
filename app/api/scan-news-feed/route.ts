@@ -36,14 +36,13 @@ export async function GET() {
     fetchStats
   } = await scanNewsFeeds(newsState.feedUpdateTime, newsState.seenNewsKeys || []);
 
-  const newsChannelId = process.env.DISCORD_NEWS_CHANNEL_ID || "";
   const sentRows: Array<Record<string, string>> = [];
 
   for (const hit of hits) {
     for (const ticker of hit.tickers) {
       const sentiment = await analyzeSenti(ticker, hit.title, hit.summary);
       const row = outTickerSummary(hit, ticker, sentiment);
-      await publishTickerSummary(row, newsChannelId);
+      await publishTickerSummary(row);
       sentRows.push(row);
     }
   }
