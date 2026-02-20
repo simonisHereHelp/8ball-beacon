@@ -20,7 +20,6 @@ function formatPstDateTime(date: Date) {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
     hour12: false
   }).format(date);
 }
@@ -49,7 +48,18 @@ export function outTickerSummary(hit: NewsHit, ticker: string, sentiment: Sentim
   };
 }
 
-export async function publishTickerSummary(row: TickerSummaryRow, newsChannelId?: string) {
-  const payload = newsChannelId ? { channel_id: newsChannelId, ...row } : row;
-  await sendDiscordNews(`\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+function toPlainTextSummary(row: TickerSummaryRow): string {
+  const published = row.published ? ` (${row.published})` : "";
+  return [
+    "---",
+    `${row.title}${published}`,
+    "",
+    row.link,
+    "---"
+  ].join("\n");
 }
+
+export async function publishTickerSummary(row: TickerSummaryRow) {
+  await sendDiscordNews(toPlainTextSummary(row));
+}
+
