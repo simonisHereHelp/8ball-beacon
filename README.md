@@ -39,12 +39,19 @@ FINNHUB_API_KEY=YOUR_FINNHUB_API_KEY
 
 Bot notifications are intentionally quiet: no per-poll scan/cik status messages are sent to Discord.
 
+<<<<<<< codex/add-next-earning-call-route-and-message-key-xm5m6y
+Polling behavior:
+- `/api/scan-news-feed` runs every 4 bot intervals.
+- `/api/scan-rss-feed` is manual via `#filings` command (`filing` / `filings`).
+=======
 News Poll = 4 x BOT_POLL_MS
+>>>>>>> main
 
 ## Channel command listener (`#filings`)
 
 The bot listens to incoming messages in `#filings` (case-insensitive):
 
+- `filing` / `filings` => runs `/api/scan-rss-feed`
 - `status` / `state` / `log` => runs `/api/log`
 - `earning call` / `earning event` / `earning calendar` => runs `/api/next-earning-call`
 - `help` / `how to` => sends help text to Discord

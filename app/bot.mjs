@@ -18,6 +18,7 @@ let lastSeenMessageId = null;
 function helpText() {
   return [
     "Commands:",
+    "- filing | filings -> runs /api/scan-rss-feed",
     "- earning | earning call | calendar | earning event -> runs /api/next-earning-call",
     "- status | state | log -> runs /api/log",
     "- help | how to -> this help",
@@ -44,6 +45,11 @@ function helpText() {
 
 function normalizeMessage(content) {
   return String(content || "").trim().toLowerCase();
+}
+
+function shouldRunScanRssRoute(content) {
+  const c = normalizeMessage(content);
+  return c.includes("filing") || c.includes("filings");
 }
 
 function shouldRunLogRoute(content) {
@@ -93,6 +99,11 @@ async function pollFilingsChannel(botId) {
     lastSeenMessageId = message.id;
     if (!message?.content) continue;
     if (message?.author?.id === botId || message?.author?.bot) continue;
+
+    if (shouldRunScanRssRoute(message.content)) {
+      await hitApi("/api/scan-rss-feed");
+      continue;
+    }
 
     if (shouldRunLogRoute(message.content)) {
       await hitApi("/api/log");
