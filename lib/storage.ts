@@ -22,6 +22,7 @@ export type FilingEvent = {
 export type BotStatus = {
   latestScanRssFeed?: { date: string; timePst: string; summary: string };
   latestScanNewsFeed?: { date: string; timePst: string; summary: string };
+  latestScanFinnFeed?: { date: string; timePst: string; summary: string };
   latestCikJson?: { date: string; timePst: string; summary: string };
 };
 
@@ -39,6 +40,12 @@ export type NewsState = {
   latestScanNewsFeed?: { date: string; timePst: string; summary: string };
 };
 
+export type FinnhubState = {
+  seenNewsKeys: string[];
+  feedUpdateTime?: string;
+  latestScanFinnFeed?: { date: string; timePst: string; summary: string };
+};
+
 export type StateLog = {
   latest: string;
   "SEC Edgar (atom):": string;
@@ -48,6 +55,7 @@ type State = {
   logs: StateLog[];
   botStatus: BotStatus;
   news?: NewsState;
+  finnhub?: FinnhubState;
 };
 
 function ensureDirs() {
@@ -112,14 +120,27 @@ export function readState(): State {
     ? { seenNewsKeys, feedUpdateTime, latestNewsFeedsLog, latestScanNewsFeed }
     : undefined;
 
-  return { logs, botStatus, news };
+  const finnhubRaw = (raw.finnhub && typeof raw.finnhub === "object") ? raw.finnhub as Record<string, unknown> : null;
+  const finnhubSeenNewsKeys = Array.isArray(finnhubRaw?.seenNewsKeys)
+    ? finnhubRaw!.seenNewsKeys.filter((key): key is string => typeof key === "string")
+    : [];
+  const finnhubFeedUpdateTime = typeof finnhubRaw?.feedUpdateTime === "string" ? finnhubRaw.feedUpdateTime : undefined;
+  const latestScanFinnFeed = (finnhubRaw?.latestScanFinnFeed && typeof finnhubRaw.latestScanFinnFeed === "object")
+    ? finnhubRaw.latestScanFinnFeed as FinnhubState["latestScanFinnFeed"]
+    : undefined;
+
+  const finnhub = (finnhubSeenNewsKeys.length > 0 || latestScanFinnFeed || finnhubFeedUpdateTime)
+    ? { seenNewsKeys: finnhubSeenNewsKeys, feedUpdateTime: finnhubFeedUpdateTime, latestScanFinnFeed }
+    : undefined;
+
+  return { logs, botStatus, news, finnhub };
 }
 
 export function writeState(state: State) {
   ensureDirs();
   fs.writeFileSync(
     STATE_PATH,
-    JSON.stringify({ logs: state.logs, botStatus: state.botStatus, news: state.news }, null, 2),
+    JSON.stringify({ logs: state.logs, botStatus: state.botStatus, news: state.news, finnhub: state.finnhub }, null, 2),
     "utf-8"
   );
 }
