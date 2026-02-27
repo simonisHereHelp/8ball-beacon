@@ -23,6 +23,7 @@ export type BotStatus = {
   latestScanRssFeed?: { date: string; timePst: string; summary: string };
   latestScanNewsFeed?: { date: string; timePst: string; summary: string };
   latestScanFinnFeed?: { date: string; timePst: string; summary: string };
+  latestScanMedFeed?: { date: string; timePst: string; summary: string };
   latestCikJson?: { date: string; timePst: string; summary: string };
 };
 
@@ -46,6 +47,20 @@ export type FinnhubState = {
   latestScanFinnFeed?: { date: string; timePst: string; summary: string };
 };
 
+export type MedFeedsLog = {
+  date: string;
+  timePst: string;
+  summary: string;
+  feedUpdateTime: string;
+};
+
+export type MedState = {
+  seenNewsKeys: string[];
+  feedUpdateTime?: string;
+  latestMedFeedsLog?: MedFeedsLog;
+  latestScanMedFeed?: { date: string; timePst: string; summary: string };
+};
+
 export type StateLog = {
   latest: string;
   "SEC Edgar (atom):": string;
@@ -56,6 +71,7 @@ type State = {
   botStatus: BotStatus;
   news?: NewsState;
   finnhub?: FinnhubState;
+  med?: MedState;
 };
 
 function ensureDirs() {
@@ -133,14 +149,42 @@ export function readState(): State {
     ? { seenNewsKeys: finnhubSeenNewsKeys, feedUpdateTime: finnhubFeedUpdateTime, latestScanFinnFeed }
     : undefined;
 
-  return { logs, botStatus, news, finnhub };
+  const medRaw = (raw.med && typeof raw.med === "object") ? raw.med as Record<string, unknown> : null;
+  const medSeenNewsKeys = Array.isArray(medRaw?.seenNewsKeys)
+    ? medRaw!.seenNewsKeys.filter((key): key is string => typeof key === "string")
+    : [];
+  const medFeedUpdateTime = typeof medRaw?.feedUpdateTime === "string" ? medRaw.feedUpdateTime : undefined;
+
+  const latestMedFeedsLogRaw = (medRaw?.latestMedFeedsLog && typeof medRaw.latestMedFeedsLog === "object")
+    ? medRaw.latestMedFeedsLog as Record<string, unknown>
+    : null;
+  const latestMedFeedsLog = latestMedFeedsLogRaw
+    ? {
+      date: typeof latestMedFeedsLogRaw.date === "string" ? latestMedFeedsLogRaw.date : "",
+      timePst: typeof latestMedFeedsLogRaw.timePst === "string" ? latestMedFeedsLogRaw.timePst : "",
+      summary: typeof latestMedFeedsLogRaw.summary === "string" ? latestMedFeedsLogRaw.summary : "",
+      feedUpdateTime: typeof latestMedFeedsLogRaw.feedUpdateTime === "string"
+        ? latestMedFeedsLogRaw.feedUpdateTime
+        : (medFeedUpdateTime || "")
+    }
+    : undefined;
+
+  const latestScanMedFeed = (medRaw?.latestScanMedFeed && typeof medRaw.latestScanMedFeed === "object")
+    ? medRaw.latestScanMedFeed as MedState["latestScanMedFeed"]
+    : undefined;
+
+  const med = (medSeenNewsKeys.length > 0 || latestScanMedFeed || latestMedFeedsLog || medFeedUpdateTime)
+    ? { seenNewsKeys: medSeenNewsKeys, feedUpdateTime: medFeedUpdateTime, latestMedFeedsLog, latestScanMedFeed }
+    : undefined;
+
+  return { logs, botStatus, news, finnhub, med };
 }
 
 export function writeState(state: State) {
   ensureDirs();
   fs.writeFileSync(
     STATE_PATH,
-    JSON.stringify({ logs: state.logs, botStatus: state.botStatus, news: state.news, finnhub: state.finnhub }, null, 2),
+    JSON.stringify({ logs: state.logs, botStatus: state.botStatus, news: state.news, finnhub: state.finnhub, med: state.med }, null, 2),
     "utf-8"
   );
 }
