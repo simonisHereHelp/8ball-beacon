@@ -3,7 +3,10 @@ import { readState, writeState } from "@/lib/storage";
 import { scanNewsFeeds } from "@/lib/scanNewsFeeds";
 import { analyzeSenti } from "@/lib/analyzeSenti";
 import { outTickerSummary, publishTickerSummary } from "@/lib/outTickerSummary";
+<<<<<<< codex/add-finnhub-news-api-and-update-bot-flow-soey5q
 import { getMedFeedUrls } from "@/lib/newsFeeds";
+=======
+>>>>>>> main
 
 export const runtime = "nodejs";
 
@@ -29,15 +32,22 @@ export async function GET() {
   const state = readState();
   const medState = state.med || { seenNewsKeys: [] };
 
+<<<<<<< codex/add-finnhub-news-api-and-update-bot-flow-soey5q
   const medFeedUrls = getMedFeedUrls();
 
+=======
+>>>>>>> main
   const {
     now,
     effectiveSince,
     hits,
     newKeys,
     fetchStats
+<<<<<<< codex/add-finnhub-news-api-and-update-bot-flow-soey5q
   } = await scanNewsFeeds(medState.feedUpdateTime, medState.seenNewsKeys || [], medFeedUrls);
+=======
+  } = await scanNewsFeeds(medState.feedUpdateTime, medState.seenNewsKeys || []);
+>>>>>>> main
 
   const sentRows: Array<Record<string, string>> = [];
 
