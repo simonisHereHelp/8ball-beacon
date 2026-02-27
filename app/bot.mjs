@@ -9,6 +9,7 @@ import { hitApi } from "../lib/bot/apiClient.mjs";
 loadEnvFile(".env.local");
 
 const config = getBotConfig();
+const WORKFLOW_INTERVAL_MS = 10_000;
 
 let tickRunning = false;
 let lastErrorMessage = "";
@@ -169,7 +170,7 @@ async function pollListingsChannel(botId) {
 }
 
 async function sendStartMessage(botId) {
-  await sendDiscord(`Polling start: ${botId} ${config.pollMs}ms`);
+  await sendDiscord(`Polling start: ${botId} ${WORKFLOW_INTERVAL_MS}ms`);
 }
 
 async function tick(botId) {
@@ -208,14 +209,14 @@ async function main() {
   }
 
   await sendStartMessage(botId);
-  console.log(`bot polling local API routes every ${config.pollMs}ms`);
+  console.log(`bot polling local API routes every ${WORKFLOW_INTERVAL_MS}ms`);
   console.log(`bot id: ${botId}`);
   console.log(`tracked channels: ${trackedChannels.join(",") || "none"}`);
   console.log(`filings channel: ${filingsChannelId || "not-found"}`);
   console.log(`listings channel: ${listingsChannelId || "not-found"}`);
 
   await tick(botId);
-  setInterval(() => tick(botId), config.pollMs);
+  setInterval(() => tick(botId), WORKFLOW_INTERVAL_MS);
 }
 
 main().catch(async (error) => {
