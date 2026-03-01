@@ -9,7 +9,7 @@ import { hitApi } from "../lib/bot/apiClient.mjs";
 loadEnvFile(".env.local");
 
 const config = getBotConfig();
-const WORKFLOW_INTERVAL_MS = 10_000;
+const WORKFLOW_INTERVAL_MS = 10000;
 
 let tickRunning = false;
 let lastErrorMessage = "";
@@ -178,7 +178,8 @@ async function tick(botId) {
   tickRunning = true;
 
   try {
-    await runPollingCycle();
+    const workflow = await runPollingCycle();
+    console.log(`[bot-workflow] counter=${workflow.counterNow} next=${workflow.nextCounter} dir=${workflow.direction} path=${workflow.path || "none"}`);
     await pollFilingsChannel(botId);
     await pollListingsChannel(botId);
     lastErrorMessage = "";
