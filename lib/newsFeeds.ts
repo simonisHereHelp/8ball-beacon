@@ -17,24 +17,34 @@ export function getTrackedTickets(): string[] {
 }
 
 const NEWS_FEEDS_PATH = path.join(process.cwd(), "data", "news_feeds.json");
+const MED_FEEDS_PATH = path.join(process.cwd(), "data", "med-feeds.json");
 
 let cachedNewsFeeds: string[] | null = null;
+let cachedMedFeeds: string[] | null = null;
 
-export function getNewsFeedUrls(): string[] {
-  if (cachedNewsFeeds) return cachedNewsFeeds;
-
-  if (!fs.existsSync(NEWS_FEEDS_PATH)) {
-    cachedNewsFeeds = [];
-    return cachedNewsFeeds;
+function readFeedUrlsFromPath(filePath: string): string[] {
+  if (!fs.existsSync(filePath)) {
+    return [];
   }
 
-  const raw = JSON.parse(fs.readFileSync(NEWS_FEEDS_PATH, "utf-8")) as unknown;
+  const raw = JSON.parse(fs.readFileSync(filePath, "utf-8")) as unknown;
   const urls = Array.isArray(raw)
     ? raw.filter((v): v is string => typeof v === "string").map((v) => v.trim()).filter(Boolean)
     : [];
 
-  cachedNewsFeeds = [...new Set(urls)];
+  return [...new Set(urls)];
+}
+
+export function getNewsFeedUrls(): string[] {
+  if (cachedNewsFeeds) return cachedNewsFeeds;
+  cachedNewsFeeds = readFeedUrlsFromPath(NEWS_FEEDS_PATH);
   return cachedNewsFeeds;
+}
+
+export function getMedFeedUrls(): string[] {
+  if (cachedMedFeeds) return cachedMedFeeds;
+  cachedMedFeeds = readFeedUrlsFromPath(MED_FEEDS_PATH);
+  return cachedMedFeeds;
 }
 
 export type FeedItem = {
@@ -139,7 +149,7 @@ function parseAtomEntries(xml: string, source: string): FeedItem[] {
   return entries;
 }
 
-export async function fetchAllNewsFeedItems() {
+export async function fetchAllFeedItems(feedUrls: string[]) {
   const headers = {
     "User-Agent": process.env.SEC_USER_AGENT || "8ball-beacon/0.1 news scanner",
     Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml"
@@ -148,7 +158,7 @@ export async function fetchAllNewsFeedItems() {
   const allItems: FeedItem[] = [];
   const fetchStats: Array<{ source: string; ok: boolean; status?: number; count: number; error?: string }> = [];
 
-  for (const source of getNewsFeedUrls()) {
+  for (const source of feedUrls) {
     try {
       const res = await fetch(source, { headers, cache: "no-store" });
       if (!res.ok) {
@@ -170,6 +180,10 @@ export async function fetchAllNewsFeedItems() {
   }
 
   return { allItems, fetchStats };
+}
+
+export async function fetchAllNewsFeedItems() {
+  return fetchAllFeedItems(getNewsFeedUrls());
 }
 
 export function detectTickers(item: FeedItem): string[] {
