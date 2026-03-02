@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { readState, writeState } from "@/lib/storage";
 import { scanNewsFeeds } from "@/lib/scanNewsFeeds";
-import { analyzeSenti } from "@/lib/analyzeSenti";
 import { outTickerSummary, publishTickerSummary } from "@/lib/outTickerSummary";
+import { getMedFeedUrls } from "@/lib/newsFeeds";
 
 export const runtime = "nodejs";
 
@@ -28,20 +28,23 @@ export async function GET() {
   const state = readState();
   const newsState = state.news || { seenNewsKeys: [] };
 
+  const medFeedUrls = getMedFeedUrls();
+
   const {
     now,
     effectiveSince,
     hits,
     newKeys,
     fetchStats
-  } = await scanNewsFeeds(newsState.feedUpdateTime, newsState.seenNewsKeys || []);
+  } = await scanNewsFeeds(newsState.feedUpdateTime, newsState.seenNewsKeys || [], medFeedUrls, {
+    skipTickerRelevancy: true
+  });
 
   const sentRows: Array<Record<string, string>> = [];
 
   for (const hit of hits) {
     for (const ticker of hit.tickers) {
-      const sentiment = await analyzeSenti(ticker, hit.title, hit.summary);
-      const row = outTickerSummary(hit, ticker, sentiment);
+      const row = outTickerSummary(hit, ticker, "na");
       await publishTickerSummary(row);
       sentRows.push(row);
     }
