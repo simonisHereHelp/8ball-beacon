@@ -17,9 +17,9 @@
       "summary": "cik=0000773840, ok=true"
     },
     "latestScanNewsFeed": {
-      "date": "2026-02-21",
-      "timePst": "11:48:47",
-      "summary": "since=2026-02-21T19:48:21.151Z, matched=0, sent=0"
+      "date": "2026-03-01",
+      "timePst": "16:38:55",
+      "summary": "since=2026-03-02T00:37:45.539Z, matched=0, sent=0"
     },
     "latestScanMedFeed": {
       "date": "2026-02-28",
@@ -43,28 +43,19 @@
       "https://www.investing.com/news/stock-market-news/afterhours-movers-nvidia-meta-amd-palo-alto-networks-and-more-432SI-4509784|2026-02-18T05:40:02.000Z|META",
       "https://www.cnbc.com/2026/02/17/meta-nvidia-deal-ai-data-center-chips.html|2026-02-17T21:54:32.000Z|META",
       "https://www.investing.com/news/stock-market-news/spain-to-probe-x-meta-tiktok-over-aigenerated-child-sexual-abuse-material-4508035|2026-02-18T06:01:57.000Z|META",
-      "https://www.investing.com/news/stock-market-news/spain-to-probe-x-meta-tiktok-over-aigenerated-child-sexual-abuse-material-4508035|2026-02-18T06:07:50.000Z|META",
-      "https://www.bloomberg.com/news/articles/2026-02-20/bets-on-musk-s-spacex-spark-200-surge-in-korean-brokerage-stock|2026-02-20T01:21:44.000Z|SPACEX",
-      "https://finance.yahoo.com/news/jim-cramer-linked-nvidia-nvda-175139994.html|2026-02-18T17:51:39.000Z|NVDA",
-      "https://finance.yahoo.com/news/jim-cramer-believes-don-t-175051414.html|2026-02-18T17:50:51.000Z|GOOGL",
-      "https://finance.yahoo.com/news/walmart-wmt-king-says-jim-175036248.html|2026-02-18T17:50:36.000Z|WMT",
-      "https://finance.yahoo.com/news/jim-cramer-discusses-eli-lilly-175027910.html|2026-02-18T17:50:27.000Z|LLY",
-      "https://finance.yahoo.com/news/jim-cramer-believes-got-last-174931482.html|2026-02-18T17:49:31.000Z|HD",
-      "https://www.bloomberg.com/news/videos/2026-02-20/nike-races-to-capture-the-outdoor-market-video|2026-02-20T16:50:05.000Z|HILL",
-      "https://finance.yahoo.com/news/saturday-spread-using-volatility-skew-151501673.html|2026-02-21T15:15:01.000Z|ORCL",
-      "https://www.cnbc.com/2026/02/20/national-pta-meta-child-safety-trials-zuckerberg.html|2026-02-20T21:38:12.000Z|META"
+      "https://www.investing.com/news/stock-market-news/spain-to-probe-x-meta-tiktok-over-aigenerated-child-sexual-abuse-material-4508035|2026-02-18T06:07:50.000Z|META"
     ],
-    "feedUpdateTime": "2026-02-21T19:48:41.151Z",
+    "feedUpdateTime": "2026-03-02T00:38:35.576Z",
     "latestNewsFeedsLog": {
-      "date": "2026-02-21",
-      "timePst": "11:48:47",
-      "summary": "since=2026-02-21T19:48:21.151Z, matched=0, sent=0",
-      "feedUpdateTime": "2026-02-21T19:48:41.151Z"
+      "date": "2026-03-01",
+      "timePst": "16:38:55",
+      "summary": "since=2026-03-02T00:37:45.539Z, matched=0, sent=0",
+      "feedUpdateTime": "2026-03-02T00:38:35.576Z"
     },
     "latestScanNewsFeed": {
-      "date": "2026-02-21",
-      "timePst": "11:48:47",
-      "summary": "since=2026-02-21T19:48:21.151Z, matched=0, sent=0"
+      "date": "2026-03-01",
+      "timePst": "16:38:55",
+      "summary": "since=2026-03-02T00:37:45.539Z, matched=0, sent=0"
     }
   },
   "med": {
