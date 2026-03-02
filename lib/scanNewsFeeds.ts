@@ -6,7 +6,12 @@ function newsKey(hit: NewsHit) {
   return `${hit.link || hit.title}|${hit.publishedDtUtc || ""}|${hit.tickers.join(",")}`;
 }
 
-export async function scanNewsFeeds(feedUpdateTime?: string, seenNewsKeys: string[] = [], feedUrls?: string[]) {
+export async function scanNewsFeeds(
+  feedUpdateTime?: string,
+  seenNewsKeys: string[] = [],
+  feedUrls?: string[],
+  options: { skipTickerRelevancy?: boolean } = {}
+) {
   const seen = new Set(seenNewsKeys);
   const now = Date.now();
   const fifteenDaysAgo = now - FIFTEEN_DAYS_MS;
@@ -19,7 +24,7 @@ export async function scanNewsFeeds(feedUpdateTime?: string, seenNewsKeys: strin
   const candidates = new Map<string, NewsHit>();
 
   for (const item of allItems) {
-    const tickers = detectTickers(item);
+    const tickers = options.skipTickerRelevancy ? ["NEWS"] : detectTickers(item);
     if (tickers.length === 0) continue;
     if (!item.publishedUnix) continue;
     if (item.publishedUnix < effectiveSince) continue;
