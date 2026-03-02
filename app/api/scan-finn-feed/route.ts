@@ -126,6 +126,7 @@ export async function GET() {
   }
 
   const state = readState();
+  state.botStatus = state.botStatus || {};
   const finnhubState = state.finnhub || { seenNewsKeys: [], feedUpdateTime: null };
   const seenNewsKeys = new Set<string>(finnhubState.seenNewsKeys || []);
   const feedUpdateTime = parseFeedUpdateTime(finnhubState.feedUpdateTime);
@@ -181,6 +182,7 @@ export async function GET() {
     latestScanFinnFeed
   };
   state.botStatus.latestScanFinnFeed = latestScanFinnFeed;
+  state.botStatus.latestScanFinnFeeds = latestScanFinnFeed;
   writeState(state);
 
   return NextResponse.json({

@@ -23,6 +23,7 @@ export type BotStatus = {
   latestScanRssFeed?: { date: string; timePst: string; summary: string };
   latestScanNewsFeed?: { date: string; timePst: string; summary: string };
   latestScanFinnFeed?: { date: string; timePst: string; summary: string };
+  latestScanFinnFeeds?: { date: string; timePst: string; summary: string };
   latestScanMedFeed?: { date: string; timePst: string; summary: string };
   latestCikJson?: { date: string; timePst: string; summary: string };
 };
